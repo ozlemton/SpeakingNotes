@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
-import '../../../domain/models/category.dart';
+import 'package:flutter/foundation.dart' hide Category;
+import '../../domain/models/category.dart';
 
 @immutable
 sealed class CategoryEvent {}

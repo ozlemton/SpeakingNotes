@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/get_notes_by_category_usecase.dart';
-import '../../../domain/usecases/create_note_usecase.dart';
-import '../../../domain/usecases/delete_note_usecase.dart';
+import '../../domain/usecases/get_notes_by_category_usecase.dart';
+import '../../domain/usecases/create_note_usecase.dart';
+import '../../domain/usecases/delete_note_usecase.dart';
 import 'note_event.dart';
 import 'note_state.dart';
 

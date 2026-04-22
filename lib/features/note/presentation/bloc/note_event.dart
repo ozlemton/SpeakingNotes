@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../domain/models/note.dart';
+import '../../domain/models/note.dart';
 
 @immutable
 sealed class NoteEvent {}
