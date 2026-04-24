@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "747001907939",
+    "project_id": "speakingnotes-5e2b5",
+    "storage_bucket": "speakingnotes-5e2b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747001907939:android:fe5e366aa04ed2927813d6",
+        "android_client_info": {
+          "package_name": "com.example.speaking_notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGtpETo58by7ZLiTxPcunb2sECErI5RwY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
