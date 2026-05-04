@@ -12,11 +12,16 @@ import '../../features/note/domain/usecases/get_notes_by_category_usecase.dart';
 import '../../features/note/domain/usecases/create_note_usecase.dart';
 import '../../features/note/domain/usecases/delete_note_usecase.dart';
 import '../../features/note/presentation/bloc/note_bloc.dart';
+import '../services/speech_service.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
   getIt.registerSingleton<AppDatabase>(AppDatabase());
+
+  final speechService = SpeechService();
+  await speechService.initialize();
+  getIt.registerSingleton<SpeechService>(speechService);
 
   getIt.registerSingleton<CategoryRepository>(
     LocalCategoryRepository(getIt<AppDatabase>()),
