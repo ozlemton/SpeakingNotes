@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SpeakingNotes needs microphone access to record your notes</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SpeakingNotes needs speech recognition to convert your voice to text</string>
 </dict>
 </plist>
