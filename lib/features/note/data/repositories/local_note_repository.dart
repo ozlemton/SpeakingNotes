@@ -8,6 +8,19 @@ class LocalNoteRepository implements NoteRepository {
   LocalNoteRepository(this.db);
 
   @override
+  Future<List<domain.Note>> getAllNotes() async {
+    final rows = await db.select(db.notes).get();
+    return rows
+        .map((r) => domain.Note(
+              id: r.id,
+              categoryId: r.categoryId,
+              content: r.content,
+              createdAt: DateTime.parse(r.createdAt),
+            ))
+        .toList();
+  }
+
+  @override
   Future<List<domain.Note>> getNotesByCategory(String categoryId) async {
     final rows = await (db.select(db.notes)
           ..where((t) => t.categoryId.equals(categoryId)))
@@ -24,6 +37,7 @@ class LocalNoteRepository implements NoteRepository {
 
   @override
   Future<void> createNote(domain.Note note) async {
+    print('[REPO] Saving note to DB: id=${note.id}, categoryId=${note.categoryId}, content=${note.content}');
     await db.into(db.notes).insert(NotesCompanion.insert(
           id: note.id,
           categoryId: note.categoryId,

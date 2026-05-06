@@ -1,4 +1,13 @@
+import 'dart:math';
 import 'package:speech_to_text/speech_to_text.dart';
+
+const _mockSentences = [
+  'Bugün toplantıda yeni proje hakkında konuştuk',
+  'Flutter ile uygulama geliştirmek çok keyifli',
+  'Clean Architecture kullanmak kodu düzenli tutuyor',
+  'Kitap okuma listeme yeni kitaplar ekledim',
+  'Haftalık hedeflerimi gözden geçirdim',
+];
 
 class SpeechService {
   final SpeechToText _speech = SpeechToText();
@@ -45,6 +54,9 @@ class SpeechService {
     _onResult = null;
     await _speech.stop();
   }
+
+  String generateMockText() =>
+      _mockSentences[Random().nextInt(_mockSentences.length)];
 
   bool get isListening => _speech.isListening;
   bool get isAvailable => _available;

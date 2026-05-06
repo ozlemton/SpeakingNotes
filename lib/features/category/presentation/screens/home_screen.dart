@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
+import '../../../../core/utils/constants.dart';
 import '../../domain/models/category.dart';
 import '../bloc/category_bloc.dart';
 import '../bloc/category_event.dart';
@@ -28,9 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Category? _selectedCategory;
   String _searchQuery = '';
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<CategoryBloc>().add(LoadCategories());
+    context.read<NoteBloc>().add(LoadAllNotes());
+  }
+
   void _selectCategory(Category? category) {
     setState(() => _selectedCategory = category);
-    if (category != null) {
+    if (category == null) {
+      context.read<NoteBloc>().add(LoadAllNotes());
+    } else {
       context.read<NoteBloc>().add(LoadNotes(category.id));
     }
   }
@@ -69,7 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _RecordingBottomSheet(
           selectedCategory: _selectedCategory,
           onNoteCreated: () {
-            if (_selectedCategory != null) {
+            if (_selectedCategory == null) {
+              noteBloc.add(LoadAllNotes());
+            } else {
               noteBloc.add(LoadNotes(_selectedCategory!.id));
             }
           },
@@ -191,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _FilterChip(
                 label: 'All Notes',
                 isSelected: _selectedCategory == null,
-                onTap: () => setState(() => _selectedCategory = null),
+                onTap: () => _selectCategory(null),
               ),
               ...categories.map((cat) => Padding(
                     padding: const EdgeInsets.only(left: 8),
@@ -209,23 +221,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNotesList() {
-    if (_selectedCategory == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.folder_open, size: 72, color: Colors.grey[300]),
-            const SizedBox(height: 16),
-            Text(
-              'Select a category to view notes',
-              style: TextStyle(color: Colors.grey[400], fontSize: 15),
-            ),
-          ],
-        ),
-      );
-    }
     return BlocBuilder<NoteBloc, NoteState>(
       builder: (context, state) {
+        print('[UI] NoteBloc state changed: $state');
         if (state is NoteLoading) {
           return const Center(
               child: CircularProgressIndicator(color: _primaryColor));
@@ -374,23 +372,6 @@ class _NoteCard extends StatelessWidget {
                 Text(
                   _formattedDate,
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
-                const SizedBox(height: 7),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: _primaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'Audio File',
-                    style: TextStyle(
-                      color: _primaryColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -665,29 +646,59 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         );
         return;
       }
-      _speechService.startListening(
-        onResult: (text) {
-          if (text.isEmpty) return;
+      _timer = Timer.periodic(
+          const Duration(seconds: 1), (_) => setState(() => _seconds++));
+      setState(() => _isRecording = true);
+
+      if (kTestMode) {
+        final noteBloc = context.read<NoteBloc>();
+        final navigator = Navigator.of(context);
+        final targetCategory = _targetCategory!;
+        print('[TEST] Selected category: id=${targetCategory.id}, name=${targetCategory.name}');
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          final text = _speechService.generateMockText();
+          print('[TEST] Mock text generated: $text');
           final note = Note(
             id: const Uuid().v4(),
-            categoryId: _targetCategory!.id,
+            categoryId: targetCategory.id,
             content: text,
             createdAt: DateTime.now(),
           );
-          context.read<NoteBloc>().add(CreateNote(note));
-          _speechService.stopListening();
+          print('[TEST] Dispatching CreateNote: categoryId=${note.categoryId}, categoryName=${targetCategory.name}');
+          noteBloc.add(CreateNote(note));
           _timer?.cancel();
           setState(() {
             _isRecording = false;
             _seconds = 0;
           });
           widget.onNoteCreated();
-          Navigator.pop(context);
-        },
-      );
-      _timer = Timer.periodic(
-          const Duration(seconds: 1), (_) => setState(() => _seconds++));
-      setState(() => _isRecording = true);
+          navigator.pop();
+        });
+      } else {
+        final targetCategory = _targetCategory!;
+        print('[SPEECH] Selected category: id=${targetCategory.id}, name=${targetCategory.name}');
+        _speechService.startListening(
+          onResult: (text) {
+            if (text.isEmpty) return;
+            final note = Note(
+              id: const Uuid().v4(),
+              categoryId: targetCategory.id,
+              content: text,
+              createdAt: DateTime.now(),
+            );
+            context.read<NoteBloc>().add(CreateNote(note));
+            _speechService.stopListening();
+            _timer?.cancel();
+            setState(() {
+              _isRecording = false;
+              _seconds = 0;
+            });
+            widget.onNoteCreated();
+            Navigator.pop(context);
+          },
+        );
+      }
     }
   }
 

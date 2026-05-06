@@ -4,6 +4,8 @@ import '../../domain/models/note.dart';
 @immutable
 sealed class NoteEvent {}
 
+class LoadAllNotes extends NoteEvent {}
+
 class LoadNotes extends NoteEvent {
   final String categoryId;
   LoadNotes(this.categoryId);

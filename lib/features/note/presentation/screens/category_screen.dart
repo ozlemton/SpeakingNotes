@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
+import '../../../../core/utils/constants.dart';
 import '../../../category/domain/models/category.dart';
 import '../../domain/models/note.dart';
 import '../bloc/note_bloc.dart';
@@ -177,23 +178,6 @@ class _NoteCard extends StatelessWidget {
                   _formattedDate,
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
-                const SizedBox(height: 7),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: _primaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'Audio File',
-                    style: TextStyle(
-                      color: _primaryColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -247,29 +231,53 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         _seconds = 0;
       });
     } else {
-      _speechService.startListening(
-        onResult: (text) {
-          if (text.isEmpty) return;
+      _timer = Timer.periodic(
+          const Duration(seconds: 1), (_) => setState(() => _seconds++));
+      setState(() => _isRecording = true);
+
+      if (kTestMode) {
+        final noteBloc = context.read<NoteBloc>();
+        final navigator = Navigator.of(context);
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          final text = _speechService.generateMockText();
           final note = Note(
             id: const Uuid().v4(),
             categoryId: widget.categoryId,
             content: text,
             createdAt: DateTime.now(),
           );
-          context.read<NoteBloc>().add(CreateNote(note));
-          _speechService.stopListening();
+          noteBloc.add(CreateNote(note));
           _timer?.cancel();
           setState(() {
             _isRecording = false;
             _seconds = 0;
           });
           widget.onNoteCreated();
-          Navigator.pop(context);
-        },
-      );
-      _timer = Timer.periodic(
-          const Duration(seconds: 1), (_) => setState(() => _seconds++));
-      setState(() => _isRecording = true);
+          navigator.pop();
+        });
+      } else {
+        _speechService.startListening(
+          onResult: (text) {
+            if (text.isEmpty) return;
+            final note = Note(
+              id: const Uuid().v4(),
+              categoryId: widget.categoryId,
+              content: text,
+              createdAt: DateTime.now(),
+            );
+            context.read<NoteBloc>().add(CreateNote(note));
+            _speechService.stopListening();
+            _timer?.cancel();
+            setState(() {
+              _isRecording = false;
+              _seconds = 0;
+            });
+            widget.onNoteCreated();
+            Navigator.pop(context);
+          },
+        );
+      }
     }
   }
 

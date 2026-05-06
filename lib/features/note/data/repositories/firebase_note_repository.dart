@@ -10,6 +10,14 @@ class FirebaseNoteRepository implements NoteRepository {
   CollectionReference get _collection => _firestore.collection('notes');
 
   @override
+  Future<List<Note>> getAllNotes() async {
+    final snapshot = await _collection.get();
+    return snapshot.docs
+        .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
   Future<List<Note>> getNotesByCategory(String categoryId) async {
     final snapshot = await _collection
         .where('categoryId', isEqualTo: categoryId)
