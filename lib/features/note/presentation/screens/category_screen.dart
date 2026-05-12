@@ -193,7 +193,6 @@ class _NoteCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.more_vert, color: Colors.grey[400]),
         ],
       ),
     );

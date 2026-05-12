@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
@@ -482,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _FilterChip extends StatelessWidget {
+class _FilterChip extends StatefulWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -496,37 +497,79 @@ class _FilterChip extends StatelessWidget {
   });
 
   @override
+  State<_FilterChip> createState() => _FilterChipState();
+}
+
+class _FilterChipState extends State<_FilterChip> {
+  bool _pressed = false;
+
+  void _onTapDown(TapDownDetails _) => setState(() => _pressed = true);
+  void _onTapUp(TapUpDetails _) => setState(() => _pressed = false);
+  void _onTapCancel() => setState(() => _pressed = false);
+
+  void _onLongPressStart(LongPressStartDetails _) {
+    setState(() => _pressed = true);
+    HapticFeedback.mediumImpact();
+  }
+
+  void _onLongPressEnd(LongPressEndDetails _) {
+    setState(() => _pressed = false);
+    widget.onLongPress?.call();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-        decoration: BoxDecoration(
-          color: isSelected ? _primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: _primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  )
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                  )
-                ],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[600],
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 13,
+    final hasOptions = widget.onLongPress != null;
+
+    return Tooltip(
+      message: hasOptions ? 'Hold to edit or delete' : '',
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        onLongPressStart: hasOptions ? _onLongPressStart : null,
+        onLongPressEnd: hasOptions ? _onLongPressEnd : null,
+        child: AnimatedScale(
+          scale: _pressed ? 0.95 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+            decoration: BoxDecoration(
+              color: _pressed
+                  ? (widget.isSelected
+                      ? _primaryColor.withValues(alpha: 0.85)
+                      : Colors.grey[100])
+                  : (widget.isSelected ? _primaryColor : Colors.white),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: widget.isSelected
+                  ? [
+                      BoxShadow(
+                        color: _primaryColor.withValues(
+                            alpha: _pressed ? 0.15 : 0.3),
+                        blurRadius: _pressed ? 4 : 8,
+                        offset: const Offset(0, 3),
+                      )
+                    ]
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                            alpha: _pressed ? 0.08 : 0.05),
+                        blurRadius: _pressed ? 6 : 4,
+                        spreadRadius: _pressed ? 1 : 0,
+                      )
+                    ],
+            ),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                color: widget.isSelected ? Colors.white : Colors.grey[600],
+                fontWeight:
+                    widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontSize: 13,
+              ),
+            ),
           ),
         ),
       ),
@@ -595,7 +638,6 @@ class _NoteCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.more_vert, color: Colors.grey[400]),
         ],
       ),
     );
