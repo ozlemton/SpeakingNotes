@@ -56,9 +56,9 @@ class RepositoryNoteService implements NoteRepository {
 
   @override
   Future<void> deleteNote(String id) async {
-    await Future.wait([
-      _local.deleteNote(id),
-      _firebase.deleteNote(id),
-    ]);
+    await _local.deleteNote(id);
+    try {
+      await _firebase.deleteNote(id);
+    } catch (_) {}
   }
 }

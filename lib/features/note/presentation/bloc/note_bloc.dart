@@ -67,6 +67,13 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   ) async {
     try {
       await deleteNote(event.id);
+      if (event.categoryId != null) {
+        final notes = await getNotesByCategory(event.categoryId!);
+        emit(NoteLoaded(notes));
+      } else {
+        final notes = await getAllNotes();
+        emit(NoteLoaded(notes));
+      }
     } catch (e) {
       emit(NoteError(e.toString()));
     }

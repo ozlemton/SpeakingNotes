@@ -18,5 +18,6 @@ class CreateNote extends NoteEvent {
 
 class DeleteNote extends NoteEvent {
   final String id;
-  DeleteNote(this.id);
+  final String? categoryId;
+  DeleteNote(this.id, {this.categoryId});
 }

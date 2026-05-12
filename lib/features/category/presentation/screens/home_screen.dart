@@ -280,7 +280,34 @@ class _HomeScreenState extends State<HomeScreen> {
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
             itemCount: notes.length,
-            itemBuilder: (_, i) => _NoteCard(note: notes[i]),
+            itemBuilder: (ctx, i) {
+              final note = notes[i];
+              return Dismissible(
+                key: ValueKey(note.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(Icons.delete_outline,
+                      color: Colors.white, size: 26),
+                ),
+                onDismissed: (_) {
+                  context.read<NoteBloc>().add(
+                        DeleteNote(note.id,
+                            categoryId: _selectedCategory?.id),
+                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Note deleted')),
+                  );
+                },
+                child: _NoteCard(note: note),
+              );
+            },
           );
         }
         return const SizedBox.shrink();
