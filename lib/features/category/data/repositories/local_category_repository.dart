@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import '../../../../core/services/app_database.dart';
 import '../../domain/models/category.dart' as domain;
 import '../../domain/repositories/category_repository.dart';
@@ -33,6 +34,18 @@ class LocalCategoryRepository implements CategoryRepository {
           ));
     } catch (e) {
       throw Exception('Failed to save category to local DB: $e');
+    }
+  }
+
+  @override
+  Future<void> updateCategory(domain.Category category) async {
+    try {
+      await (db.update(db.categories)..where((t) => t.id.equals(category.id)))
+          .write(CategoriesCompanion(
+        name: Value(category.name),
+      ));
+    } catch (e) {
+      throw Exception('Failed to update category in local DB: $e');
     }
   }
 

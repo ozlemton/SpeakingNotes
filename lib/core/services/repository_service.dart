@@ -28,6 +28,16 @@ class RepositoryCategoryService implements CategoryRepository {
   }
 
   @override
+  Future<void> updateCategory(Category category) async {
+    await _local.updateCategory(category);
+    try {
+      await _firebase.updateCategory(category);
+    } catch (e) {
+      debugPrint('Firebase updateCategory failed (updated locally): $e');
+    }
+  }
+
+  @override
   Future<void> deleteCategory(String id) async {
     await _local.deleteCategory(id);
     try {

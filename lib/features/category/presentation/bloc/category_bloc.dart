@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_all_categories_usecase.dart';
 import '../../domain/usecases/create_category_usecase.dart';
+import '../../domain/usecases/update_category_usecase.dart';
 import '../../domain/usecases/delete_category_usecase.dart';
 import 'category_event.dart';
 import 'category_state.dart';
@@ -8,15 +9,18 @@ import 'category_state.dart';
 class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final GetAllCategoriesUseCase getAllCategories;
   final CreateCategoryUseCase createCategory;
+  final UpdateCategoryUseCase updateCategory;
   final DeleteCategoryUseCase deleteCategory;
 
   CategoryBloc({
     required this.getAllCategories,
     required this.createCategory,
+    required this.updateCategory,
     required this.deleteCategory,
   }) : super(CategoryInitial()) {
     on<LoadCategories>(_onLoadCategories);
     on<CreateCategory>(_onCreateCategory);
+    on<UpdateCategory>(_onUpdateCategory);
     on<DeleteCategory>(_onDeleteCategory);
   }
 
@@ -46,6 +50,19 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     }
   }
 
+  Future<void> _onUpdateCategory(
+    UpdateCategory event,
+    Emitter<CategoryState> emit,
+  ) async {
+    try {
+      await updateCategory(event.category);
+      final categories = await getAllCategories();
+      emit(CategoryLoaded(categories));
+    } catch (e) {
+      emit(CategoryError(e.toString()));
+    }
+  }
+
   Future<void> _onDeleteCategory(
     DeleteCategory event,
     Emitter<CategoryState> emit,
@@ -53,7 +70,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     try {
       await deleteCategory(event.id);
       final categories = await getAllCategories();
-      emit(CategoryLoaded(categories));
+      emit(CategoryLoaded(categories, deletedId: event.id));
     } catch (e) {
       emit(CategoryError(e.toString()));
     }

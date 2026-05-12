@@ -236,7 +236,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFilterChips() {
-    return BlocBuilder<CategoryBloc, CategoryState>(
+    return BlocConsumer<CategoryBloc, CategoryState>(
+      listener: (context, state) {
+        if (state is CategoryLoaded && state.deletedId != null) {
+          if (_selectedCategory?.id == state.deletedId) {
+            _selectCategory(null);
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Category deleted')),
+          );
+        }
+      },
       builder: (context, state) {
         if (state is CategoryError) {
           return SizedBox(
@@ -268,12 +278,123 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: cat.name,
                       isSelected: _selectedCategory?.id == cat.id,
                       onTap: () => _selectCategory(cat),
+                      onLongPress: () => _showCategoryOptions(cat),
                     ),
                   )),
             ],
           ),
         );
       },
+    );
+  }
+
+  void _showCategoryOptions(Category category) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: _primaryColor),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditCategoryDialog(category);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: Colors.red[400]),
+              title: Text('Delete', style: TextStyle(color: Colors.red[400])),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteCategoryDialog(category);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditCategoryDialog(Category category) {
+    final controller = TextEditingController(text: category.name);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Category'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Category name'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isNotEmpty && name != category.name) {
+                final updated = Category(
+                  id: category.id,
+                  name: name,
+                  createdAt: category.createdAt,
+                );
+                context.read<CategoryBloc>().add(UpdateCategory(updated));
+                if (_selectedCategory?.id == category.id) {
+                  setState(() => _selectedCategory = updated);
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Category updated')),
+                );
+              }
+              Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteCategoryDialog(Category category) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Category'),
+        content: Text(
+            'Delete "${category.name}"? Notes in this category will not be deleted.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<CategoryBloc>().add(DeleteCategory(category.id));
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red[400])),
+          ),
+        ],
+      ),
     );
   }
 
@@ -365,17 +486,20 @@ class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   const _FilterChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),

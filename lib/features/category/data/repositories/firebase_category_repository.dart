@@ -31,6 +31,15 @@ class FirebaseCategoryRepository implements CategoryRepository {
   }
 
   @override
+  Future<void> updateCategory(Category category) async {
+    try {
+      await _collection.doc(category.id).update(category.toJson());
+    } catch (e) {
+      throw Exception('Failed to update category in Firebase: $e');
+    }
+  }
+
+  @override
   Future<void> deleteCategory(String id) async {
     try {
       await _collection.doc(id).delete();

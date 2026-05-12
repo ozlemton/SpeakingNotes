@@ -10,7 +10,8 @@ class CategoryLoading extends CategoryState {}
 
 class CategoryLoaded extends CategoryState {
   final List<Category> categories;
-  CategoryLoaded(this.categories);
+  final String? deletedId;
+  CategoryLoaded(this.categories, {this.deletedId});
 }
 
 class CategoryError extends CategoryState {

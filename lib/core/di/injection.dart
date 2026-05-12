@@ -9,6 +9,7 @@ import '../../features/category/data/repositories/local_category_repository.dart
 import '../../features/category/domain/repositories/category_repository.dart';
 import '../../features/category/domain/usecases/get_all_categories_usecase.dart';
 import '../../features/category/domain/usecases/create_category_usecase.dart';
+import '../../features/category/domain/usecases/update_category_usecase.dart';
 import '../../features/category/domain/usecases/delete_category_usecase.dart';
 import '../../features/category/presentation/bloc/category_bloc.dart';
 import '../../features/note/data/repositories/firebase_note_repository.dart';
@@ -78,6 +79,9 @@ Future<void> setupDependencies() async {
   getIt.registerFactory<CreateCategoryUseCase>(
     () => CreateCategoryUseCase(getIt<CategoryRepository>()),
   );
+  getIt.registerFactory<UpdateCategoryUseCase>(
+    () => UpdateCategoryUseCase(getIt<CategoryRepository>()),
+  );
   getIt.registerFactory<DeleteCategoryUseCase>(
     () => DeleteCategoryUseCase(getIt<CategoryRepository>()),
   );
@@ -99,6 +103,7 @@ Future<void> setupDependencies() async {
     () => CategoryBloc(
       getAllCategories: getIt<GetAllCategoriesUseCase>(),
       createCategory: getIt<CreateCategoryUseCase>(),
+      updateCategory: getIt<UpdateCategoryUseCase>(),
       deleteCategory: getIt<DeleteCategoryUseCase>(),
     ),
   );
