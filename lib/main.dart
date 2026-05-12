@@ -13,14 +13,24 @@ import 'features/category/domain/models/category.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  bool firebaseFailed = false;
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (_) {
+    firebaseFailed = true;
+  }
+
   await setupDependencies();
   getIt<SyncService>().syncAll();
-  runApp(const MyApp());
+
+  runApp(MyApp(firebaseFailed: firebaseFailed));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool firebaseFailed;
+
+  const MyApp({super.key, this.firebaseFailed = false});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +50,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
           useMaterial3: true,
         ),
-        home: const HomeScreen(),
+        home: HomeScreen(showFirebaseError: firebaseFailed),
         onGenerateRoute: (settings) {
           if (settings.name == '/category') {
             final category = settings.arguments as Category;

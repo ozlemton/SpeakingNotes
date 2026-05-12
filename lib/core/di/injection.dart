@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import '../services/app_database.dart';
 import '../services/repository_service.dart';
@@ -26,7 +27,11 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<AppDatabase>(AppDatabase());
 
   final speechService = SpeechService();
-  await speechService.initialize();
+  try {
+    await speechService.initialize();
+  } catch (e) {
+    debugPrint('SpeechService initialization failed: $e');
+  }
   getIt.registerSingleton<SpeechService>(speechService);
 
   // Concrete repositories

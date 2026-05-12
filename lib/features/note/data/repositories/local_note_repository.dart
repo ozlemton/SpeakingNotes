@@ -9,44 +9,60 @@ class LocalNoteRepository implements NoteRepository {
 
   @override
   Future<List<domain.Note>> getAllNotes() async {
-    final rows = await db.select(db.notes).get();
-    return rows
-        .map((r) => domain.Note(
-              id: r.id,
-              categoryId: r.categoryId,
-              content: r.content,
-              createdAt: DateTime.parse(r.createdAt),
-            ))
-        .toList();
+    try {
+      final rows = await db.select(db.notes).get();
+      return rows
+          .map((r) => domain.Note(
+                id: r.id,
+                categoryId: r.categoryId,
+                content: r.content,
+                createdAt: DateTime.parse(r.createdAt),
+              ))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch notes from local DB: $e');
+    }
   }
 
   @override
   Future<List<domain.Note>> getNotesByCategory(String categoryId) async {
-    final rows = await (db.select(db.notes)
-          ..where((t) => t.categoryId.equals(categoryId)))
-        .get();
-    return rows
-        .map((r) => domain.Note(
-              id: r.id,
-              categoryId: r.categoryId,
-              content: r.content,
-              createdAt: DateTime.parse(r.createdAt),
-            ))
-        .toList();
+    try {
+      final rows = await (db.select(db.notes)
+            ..where((t) => t.categoryId.equals(categoryId)))
+          .get();
+      return rows
+          .map((r) => domain.Note(
+                id: r.id,
+                categoryId: r.categoryId,
+                content: r.content,
+                createdAt: DateTime.parse(r.createdAt),
+              ))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch notes by category from local DB: $e');
+    }
   }
 
   @override
   Future<void> createNote(domain.Note note) async {
-    await db.into(db.notes).insert(NotesCompanion.insert(
-          id: note.id,
-          categoryId: note.categoryId,
-          content: note.content,
-          createdAt: note.createdAt.toIso8601String(),
-        ));
+    try {
+      await db.into(db.notes).insert(NotesCompanion.insert(
+            id: note.id,
+            categoryId: note.categoryId,
+            content: note.content,
+            createdAt: note.createdAt.toIso8601String(),
+          ));
+    } catch (e) {
+      throw Exception('Failed to save note to local DB: $e');
+    }
   }
 
   @override
   Future<void> deleteNote(String id) async {
-    await (db.delete(db.notes)..where((t) => t.id.equals(id))).go();
+    try {
+      await (db.delete(db.notes)..where((t) => t.id.equals(id))).go();
+    } catch (e) {
+      throw Exception('Failed to delete note from local DB: $e');
+    }
   }
 }

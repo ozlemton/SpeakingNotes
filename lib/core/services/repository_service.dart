@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' hide Category;
 import '../../features/category/data/repositories/firebase_category_repository.dart';
 import '../../features/category/data/repositories/local_category_repository.dart';
 import '../../features/category/domain/models/category.dart';
@@ -18,18 +19,22 @@ class RepositoryCategoryService implements CategoryRepository {
 
   @override
   Future<void> createCategory(Category category) async {
-    await Future.wait([
-      _local.createCategory(category),
-      _firebase.createCategory(category),
-    ]);
+    await _local.createCategory(category);
+    try {
+      await _firebase.createCategory(category);
+    } catch (e) {
+      debugPrint('Firebase createCategory failed (saved locally): $e');
+    }
   }
 
   @override
   Future<void> deleteCategory(String id) async {
-    await Future.wait([
-      _local.deleteCategory(id),
-      _firebase.deleteCategory(id),
-    ]);
+    await _local.deleteCategory(id);
+    try {
+      await _firebase.deleteCategory(id);
+    } catch (e) {
+      debugPrint('Firebase deleteCategory failed (deleted locally): $e');
+    }
   }
 }
 
@@ -48,10 +53,12 @@ class RepositoryNoteService implements NoteRepository {
 
   @override
   Future<void> createNote(Note note) async {
-    await Future.wait([
-      _local.createNote(note),
-      _firebase.createNote(note),
-    ]);
+    await _local.createNote(note);
+    try {
+      await _firebase.createNote(note);
+    } catch (e) {
+      debugPrint('Firebase createNote failed (saved locally): $e');
+    }
   }
 
   @override
@@ -59,6 +66,8 @@ class RepositoryNoteService implements NoteRepository {
     await _local.deleteNote(id);
     try {
       await _firebase.deleteNote(id);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Firebase deleteNote failed (deleted locally): $e');
+    }
   }
 }

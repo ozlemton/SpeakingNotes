@@ -11,29 +11,45 @@ class FirebaseNoteRepository implements NoteRepository {
 
   @override
   Future<List<Note>> getAllNotes() async {
-    final snapshot = await _collection.get();
-    return snapshot.docs
-        .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
+    try {
+      final snapshot = await _collection.get();
+      return snapshot.docs
+          .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch notes from Firebase: $e');
+    }
   }
 
   @override
   Future<List<Note>> getNotesByCategory(String categoryId) async {
-    final snapshot = await _collection
-        .where('categoryId', isEqualTo: categoryId)
-        .get();
-    return snapshot.docs
-        .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
+    try {
+      final snapshot = await _collection
+          .where('categoryId', isEqualTo: categoryId)
+          .get();
+      return snapshot.docs
+          .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch notes by category from Firebase: $e');
+    }
   }
 
   @override
   Future<void> createNote(Note note) async {
-    await _collection.doc(note.id).set(note.toJson());
+    try {
+      await _collection.doc(note.id).set(note.toJson());
+    } catch (e) {
+      throw Exception('Failed to save note to Firebase: $e');
+    }
   }
 
   @override
   Future<void> deleteNote(String id) async {
-    await _collection.doc(id).delete();
+    try {
+      await _collection.doc(id).delete();
+    } catch (e) {
+      throw Exception('Failed to delete note from Firebase: $e');
+    }
   }
 }

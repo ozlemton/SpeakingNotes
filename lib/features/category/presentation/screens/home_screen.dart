@@ -19,7 +19,9 @@ const _primaryColor = Color(0xFF5B5FEF);
 const _backgroundColor = Color(0xFFF5F5F5);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool showFirebaseError;
+
+  const HomeScreen({super.key, this.showFirebaseError = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -34,6 +36,26 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     context.read<CategoryBloc>().add(LoadCategories());
     context.read<NoteBloc>().add(LoadAllNotes());
+    if (widget.showFirebaseError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showFirebaseErrorDialog());
+    }
+  }
+
+  void _showFirebaseErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Sync Unavailable'),
+        content: const Text(
+            'Cloud sync is unavailable. Your notes will be saved locally only.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _selectCategory(Category? category) {
@@ -216,6 +238,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildFilterChips() {
     return BlocBuilder<CategoryBloc, CategoryState>(
       builder: (context, state) {
+        if (state is CategoryError) {
+          return SizedBox(
+            height: 40,
+            child: Center(
+              child: Text(
+                'Failed to load categories',
+                style: TextStyle(color: Colors.red[400], fontSize: 12),
+              ),
+            ),
+          );
+        }
         final categories =
             state is CategoryLoaded ? state.categories : <Category>[];
         return SizedBox(
@@ -252,7 +285,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(color: _primaryColor));
         }
         if (state is NoteError) {
-          return Center(child: Text(state.message));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                const SizedBox(height: 12),
+                const Text(
+                  'Something went wrong. Please try again.',
+                  style: TextStyle(color: Colors.black54, fontSize: 15),
+                ),
+              ],
+            ),
+          );
         }
         if (state is NoteLoaded) {
           final notes = _searchQuery.isEmpty
@@ -700,21 +745,34 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         final targetCategory = _targetCategory!;
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
-          final text = _speechService.generateMockText();
-          final note = Note(
-            id: const Uuid().v4(),
-            categoryId: targetCategory.id,
-            content: text,
-            createdAt: DateTime.now(),
-          );
-          noteBloc.add(CreateNote(note));
-          _timer?.cancel();
-          setState(() {
-            _isRecording = false;
-            _seconds = 0;
-          });
-          widget.onNoteCreated(targetCategory);
-          navigator.pop();
+          try {
+            final text = _speechService.generateMockText();
+            final note = Note(
+              id: const Uuid().v4(),
+              categoryId: targetCategory.id,
+              content: text,
+              createdAt: DateTime.now(),
+            );
+            noteBloc.add(CreateNote(note));
+            _timer?.cancel();
+            setState(() {
+              _isRecording = false;
+              _seconds = 0;
+            });
+            widget.onNoteCreated(targetCategory);
+            navigator.pop();
+          } catch (e) {
+            _timer?.cancel();
+            if (mounted) {
+              setState(() {
+                _isRecording = false;
+                _seconds = 0;
+              });
+              ScaffoldMessenger.of(navigator.context).showSnackBar(
+                const SnackBar(content: Text('Failed to save note. Please try again.')),
+              );
+            }
+          }
         });
       } else {
         final targetCategory = _targetCategory!;

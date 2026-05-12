@@ -11,19 +11,31 @@ class FirebaseCategoryRepository implements CategoryRepository {
 
   @override
   Future<List<Category>> getAllCategories() async {
-    final snapshot = await _collection.get();
-    return snapshot.docs
-        .map((doc) => Category.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
+    try {
+      final snapshot = await _collection.get();
+      return snapshot.docs
+          .map((doc) => Category.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch categories from Firebase: $e');
+    }
   }
 
   @override
   Future<void> createCategory(Category category) async {
-    await _collection.doc(category.id).set(category.toJson());
+    try {
+      await _collection.doc(category.id).set(category.toJson());
+    } catch (e) {
+      throw Exception('Failed to save category to Firebase: $e');
+    }
   }
 
   @override
   Future<void> deleteCategory(String id) async {
-    await _collection.doc(id).delete();
+    try {
+      await _collection.doc(id).delete();
+    } catch (e) {
+      throw Exception('Failed to delete category from Firebase: $e');
+    }
   }
 }

@@ -82,7 +82,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 child: CircularProgressIndicator(color: _primaryColor));
           }
           if (state is NoteError) {
-            return Center(child: Text(state.message));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Something went wrong. Please try again.',
+                    style: TextStyle(color: Colors.black54, fontSize: 15),
+                  ),
+                ],
+              ),
+            );
           }
           if (state is NoteLoaded) {
             if (state.notes.isEmpty) {
@@ -240,21 +252,34 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         final navigator = Navigator.of(context);
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
-          final text = _speechService.generateMockText();
-          final note = Note(
-            id: const Uuid().v4(),
-            categoryId: widget.categoryId,
-            content: text,
-            createdAt: DateTime.now(),
-          );
-          noteBloc.add(CreateNote(note));
-          _timer?.cancel();
-          setState(() {
-            _isRecording = false;
-            _seconds = 0;
-          });
-          widget.onNoteCreated();
-          navigator.pop();
+          try {
+            final text = _speechService.generateMockText();
+            final note = Note(
+              id: const Uuid().v4(),
+              categoryId: widget.categoryId,
+              content: text,
+              createdAt: DateTime.now(),
+            );
+            noteBloc.add(CreateNote(note));
+            _timer?.cancel();
+            setState(() {
+              _isRecording = false;
+              _seconds = 0;
+            });
+            widget.onNoteCreated();
+            navigator.pop();
+          } catch (e) {
+            _timer?.cancel();
+            if (mounted) {
+              setState(() {
+                _isRecording = false;
+                _seconds = 0;
+              });
+              ScaffoldMessenger.of(navigator.context).showSnackBar(
+                const SnackBar(content: Text('Failed to save note. Please try again.')),
+              );
+            }
+          }
         });
       } else {
         _speechService.startListening(

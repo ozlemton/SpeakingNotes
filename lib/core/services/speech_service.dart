@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 const _mockSentences = [
@@ -17,9 +18,14 @@ class SpeechService {
 
   Future<void> initialize() async {
     if (_initialized) return;
-    _available = await _speech.initialize(
-      onStatus: _onStatus,
-    );
+    try {
+      _available = await _speech.initialize(
+        onStatus: _onStatus,
+      );
+    } catch (e) {
+      debugPrint('SpeechService.initialize failed: $e');
+      _available = false;
+    }
     _initialized = true;
   }
 
@@ -41,18 +47,26 @@ class SpeechService {
   }
 
   void _startListeningInternal() {
-    _speech.listen(
-      onResult: (result) {
-        if (result.finalResult) {
-          _onResult?.call(result.recognizedWords);
-        }
-      },
-    );
+    try {
+      _speech.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            _onResult?.call(result.recognizedWords);
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('SpeechService.listen failed: $e');
+    }
   }
 
   Future<void> stopListening() async {
     _onResult = null;
-    await _speech.stop();
+    try {
+      await _speech.stop();
+    } catch (e) {
+      debugPrint('SpeechService.stop failed: $e');
+    }
   }
 
   String generateMockText() =>
