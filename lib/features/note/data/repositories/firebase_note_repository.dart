@@ -4,15 +4,21 @@ import '../../domain/repositories/note_repository.dart';
 
 class FirebaseNoteRepository implements NoteRepository {
   final FirebaseFirestore _firestore;
+  String? _userId;
 
   FirebaseNoteRepository(this._firestore);
+
+  void setUserId(String? userId) => _userId = userId;
 
   CollectionReference get _collection => _firestore.collection('notes');
 
   @override
   Future<List<Note>> getAllNotes() async {
     try {
-      final snapshot = await _collection.get();
+      final query = _userId != null
+          ? _collection.where('userId', isEqualTo: _userId)
+          : _collection;
+      final snapshot = await query.get();
       return snapshot.docs
           .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
@@ -24,9 +30,12 @@ class FirebaseNoteRepository implements NoteRepository {
   @override
   Future<List<Note>> getNotesByCategory(String categoryId) async {
     try {
-      final snapshot = await _collection
-          .where('categoryId', isEqualTo: categoryId)
-          .get();
+      Query query =
+          _collection.where('categoryId', isEqualTo: categoryId);
+      if (_userId != null) {
+        query = query.where('userId', isEqualTo: _userId);
+      }
+      final snapshot = await query.get();
       return snapshot.docs
           .map((doc) => Note.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
@@ -38,7 +47,9 @@ class FirebaseNoteRepository implements NoteRepository {
   @override
   Future<void> createNote(Note note) async {
     try {
-      await _collection.doc(note.id).set(note.toJson());
+      final data = note.toJson();
+      if (_userId != null) data['userId'] = _userId;
+      await _collection.doc(note.id).set(data);
     } catch (e) {
       throw Exception('Failed to save note to Firebase: $e');
     }

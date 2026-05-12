@@ -1,20 +1,29 @@
+import 'package:drift/drift.dart' show Value;
 import '../../../../core/services/app_database.dart';
 import '../../domain/models/note.dart' as domain;
 import '../../domain/repositories/note_repository.dart';
 
 class LocalNoteRepository implements NoteRepository {
   final AppDatabase db;
+  String? _userId;
 
   LocalNoteRepository(this.db);
+
+  void setUserId(String? userId) => _userId = userId;
 
   @override
   Future<List<domain.Note>> getAllNotes() async {
     try {
-      final rows = await db.select(db.notes).get();
+      final query = db.select(db.notes);
+      if (_userId != null) {
+        query.where((t) => t.userId.equals(_userId!));
+      }
+      final rows = await query.get();
       return rows
           .map((r) => domain.Note(
                 id: r.id,
                 categoryId: r.categoryId,
+                userId: r.userId,
                 content: r.content,
                 createdAt: DateTime.parse(r.createdAt),
               ))
@@ -27,13 +36,17 @@ class LocalNoteRepository implements NoteRepository {
   @override
   Future<List<domain.Note>> getNotesByCategory(String categoryId) async {
     try {
-      final rows = await (db.select(db.notes)
-            ..where((t) => t.categoryId.equals(categoryId)))
-          .get();
+      final query = db.select(db.notes)
+        ..where((t) => t.categoryId.equals(categoryId));
+      if (_userId != null) {
+        query.where((t) => t.userId.equals(_userId!));
+      }
+      final rows = await query.get();
       return rows
           .map((r) => domain.Note(
                 id: r.id,
                 categoryId: r.categoryId,
+                userId: r.userId,
                 content: r.content,
                 createdAt: DateTime.parse(r.createdAt),
               ))
@@ -49,6 +62,7 @@ class LocalNoteRepository implements NoteRepository {
       await db.into(db.notes).insert(NotesCompanion.insert(
             id: note.id,
             categoryId: note.categoryId,
+            userId: Value(note.userId ?? _userId),
             content: note.content,
             createdAt: note.createdAt.toIso8601String(),
           ));

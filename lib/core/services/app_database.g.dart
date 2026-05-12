@@ -27,6 +27,15 @@ class $CategoriesTable extends Categories
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -39,7 +48,7 @@ class $CategoriesTable extends Categories
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  List<GeneratedColumn> get $columns => [id, name, userId, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -64,6 +73,12 @@ class $CategoriesTable extends Categories
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -90,6 +105,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
@@ -106,10 +125,12 @@ class $CategoriesTable extends Categories
 class Category extends DataClass implements Insertable<Category> {
   final String id;
   final String name;
+  final String? userId;
   final String createdAt;
   const Category({
     required this.id,
     required this.name,
+    this.userId,
     required this.createdAt,
   });
   @override
@@ -117,6 +138,9 @@ class Category extends DataClass implements Insertable<Category> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
     map['created_at'] = Variable<String>(createdAt);
     return map;
   }
@@ -125,6 +149,9 @@ class Category extends DataClass implements Insertable<Category> {
     return CategoriesCompanion(
       id: Value(id),
       name: Value(name),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
       createdAt: Value(createdAt),
     );
   }
@@ -137,6 +164,7 @@ class Category extends DataClass implements Insertable<Category> {
     return Category(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      userId: serializer.fromJson<String?>(json['userId']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
     );
   }
@@ -146,19 +174,27 @@ class Category extends DataClass implements Insertable<Category> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'userId': serializer.toJson<String?>(userId),
       'createdAt': serializer.toJson<String>(createdAt),
     };
   }
 
-  Category copyWith({String? id, String? name, String? createdAt}) => Category(
+  Category copyWith({
+    String? id,
+    String? name,
+    Value<String?> userId = const Value.absent(),
+    String? createdAt,
+  }) => Category(
     id: id ?? this.id,
     name: name ?? this.name,
+    userId: userId.present ? userId.value : this.userId,
     createdAt: createdAt ?? this.createdAt,
   );
   Category copyWithCompanion(CategoriesCompanion data) {
     return Category(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      userId: data.userId.present ? data.userId.value : this.userId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -168,36 +204,41 @@ class Category extends DataClass implements Insertable<Category> {
     return (StringBuffer('Category(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('userId: $userId, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, createdAt);
+  int get hashCode => Object.hash(id, name, userId, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Category &&
           other.id == this.id &&
           other.name == this.name &&
+          other.userId == this.userId &&
           other.createdAt == this.createdAt);
 }
 
 class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<String> id;
   final Value<String> name;
+  final Value<String?> userId;
   final Value<String> createdAt;
   final Value<int> rowid;
   const CategoriesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.userId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CategoriesCompanion.insert({
     required String id,
     required String name,
+    this.userId = const Value.absent(),
     required String createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -206,12 +247,14 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   static Insertable<Category> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? userId,
     Expression<String>? createdAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (userId != null) 'user_id': userId,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -220,12 +263,14 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   CategoriesCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
+    Value<String?>? userId,
     Value<String>? createdAt,
     Value<int>? rowid,
   }) {
     return CategoriesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -239,6 +284,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
@@ -254,6 +302,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     return (StringBuffer('CategoriesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('userId: $userId, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -286,6 +335,15 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _contentMeta = const VerificationMeta(
     'content',
   );
@@ -309,7 +367,13 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, categoryId, content, createdAt];
+  List<GeneratedColumn> get $columns => [
+    id,
+    categoryId,
+    userId,
+    content,
+    createdAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -334,6 +398,12 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
       );
     } else if (isInserting) {
       context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
     }
     if (data.containsKey('content')) {
       context.handle(
@@ -368,6 +438,10 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
       )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
       content: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}content'],
@@ -388,11 +462,13 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
 class Note extends DataClass implements Insertable<Note> {
   final String id;
   final String categoryId;
+  final String? userId;
   final String content;
   final String createdAt;
   const Note({
     required this.id,
     required this.categoryId,
+    this.userId,
     required this.content,
     required this.createdAt,
   });
@@ -401,6 +477,9 @@ class Note extends DataClass implements Insertable<Note> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['category_id'] = Variable<String>(categoryId);
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
     map['content'] = Variable<String>(content);
     map['created_at'] = Variable<String>(createdAt);
     return map;
@@ -410,6 +489,9 @@ class Note extends DataClass implements Insertable<Note> {
     return NotesCompanion(
       id: Value(id),
       categoryId: Value(categoryId),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
       content: Value(content),
       createdAt: Value(createdAt),
     );
@@ -423,6 +505,7 @@ class Note extends DataClass implements Insertable<Note> {
     return Note(
       id: serializer.fromJson<String>(json['id']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
+      userId: serializer.fromJson<String?>(json['userId']),
       content: serializer.fromJson<String>(json['content']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
     );
@@ -433,6 +516,7 @@ class Note extends DataClass implements Insertable<Note> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'categoryId': serializer.toJson<String>(categoryId),
+      'userId': serializer.toJson<String?>(userId),
       'content': serializer.toJson<String>(content),
       'createdAt': serializer.toJson<String>(createdAt),
     };
@@ -441,11 +525,13 @@ class Note extends DataClass implements Insertable<Note> {
   Note copyWith({
     String? id,
     String? categoryId,
+    Value<String?> userId = const Value.absent(),
     String? content,
     String? createdAt,
   }) => Note(
     id: id ?? this.id,
     categoryId: categoryId ?? this.categoryId,
+    userId: userId.present ? userId.value : this.userId,
     content: content ?? this.content,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -455,6 +541,7 @@ class Note extends DataClass implements Insertable<Note> {
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       content: data.content.present ? data.content.value : this.content,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -465,6 +552,7 @@ class Note extends DataClass implements Insertable<Note> {
     return (StringBuffer('Note(')
           ..write('id: $id, ')
           ..write('categoryId: $categoryId, ')
+          ..write('userId: $userId, ')
           ..write('content: $content, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -472,13 +560,14 @@ class Note extends DataClass implements Insertable<Note> {
   }
 
   @override
-  int get hashCode => Object.hash(id, categoryId, content, createdAt);
+  int get hashCode => Object.hash(id, categoryId, userId, content, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Note &&
           other.id == this.id &&
           other.categoryId == this.categoryId &&
+          other.userId == this.userId &&
           other.content == this.content &&
           other.createdAt == this.createdAt);
 }
@@ -486,12 +575,14 @@ class Note extends DataClass implements Insertable<Note> {
 class NotesCompanion extends UpdateCompanion<Note> {
   final Value<String> id;
   final Value<String> categoryId;
+  final Value<String?> userId;
   final Value<String> content;
   final Value<String> createdAt;
   final Value<int> rowid;
   const NotesCompanion({
     this.id = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.content = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -499,6 +590,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   NotesCompanion.insert({
     required String id,
     required String categoryId,
+    this.userId = const Value.absent(),
     required String content,
     required String createdAt,
     this.rowid = const Value.absent(),
@@ -509,6 +601,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   static Insertable<Note> custom({
     Expression<String>? id,
     Expression<String>? categoryId,
+    Expression<String>? userId,
     Expression<String>? content,
     Expression<String>? createdAt,
     Expression<int>? rowid,
@@ -516,6 +609,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (categoryId != null) 'category_id': categoryId,
+      if (userId != null) 'user_id': userId,
       if (content != null) 'content': content,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
@@ -525,6 +619,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   NotesCompanion copyWith({
     Value<String>? id,
     Value<String>? categoryId,
+    Value<String?>? userId,
     Value<String>? content,
     Value<String>? createdAt,
     Value<int>? rowid,
@@ -532,6 +627,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     return NotesCompanion(
       id: id ?? this.id,
       categoryId: categoryId ?? this.categoryId,
+      userId: userId ?? this.userId,
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
@@ -546,6 +642,9 @@ class NotesCompanion extends UpdateCompanion<Note> {
     }
     if (categoryId.present) {
       map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (content.present) {
       map['content'] = Variable<String>(content.value);
@@ -564,6 +663,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     return (StringBuffer('NotesCompanion(')
           ..write('id: $id, ')
           ..write('categoryId: $categoryId, ')
+          ..write('userId: $userId, ')
           ..write('content: $content, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
@@ -588,6 +688,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
     CategoriesCompanion Function({
       required String id,
       required String name,
+      Value<String?> userId,
       required String createdAt,
       Value<int> rowid,
     });
@@ -595,6 +696,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
     CategoriesCompanion Function({
       Value<String> id,
       Value<String> name,
+      Value<String?> userId,
       Value<String> createdAt,
       Value<int> rowid,
     });
@@ -615,6 +717,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -643,6 +750,11 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -663,6 +775,9 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -698,11 +813,13 @@ class $$CategoriesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<String> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion(
                 id: id,
                 name: name,
+                userId: userId,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -710,11 +827,13 @@ class $$CategoriesTableTableManager
               ({
                 required String id,
                 required String name,
+                Value<String?> userId = const Value.absent(),
                 required String createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
                 name: name,
+                userId: userId,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -744,6 +863,7 @@ typedef $$NotesTableCreateCompanionBuilder =
     NotesCompanion Function({
       required String id,
       required String categoryId,
+      Value<String?> userId,
       required String content,
       required String createdAt,
       Value<int> rowid,
@@ -752,6 +872,7 @@ typedef $$NotesTableUpdateCompanionBuilder =
     NotesCompanion Function({
       Value<String> id,
       Value<String> categoryId,
+      Value<String?> userId,
       Value<String> content,
       Value<String> createdAt,
       Value<int> rowid,
@@ -772,6 +893,11 @@ class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
 
   ColumnFilters<String> get categoryId => $composableBuilder(
     column: $table.categoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -805,6 +931,11 @@ class $$NotesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get content => $composableBuilder(
     column: $table.content,
     builder: (column) => ColumnOrderings(column),
@@ -832,6 +963,9 @@ class $$NotesTableAnnotationComposer
     column: $table.categoryId,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
@@ -870,12 +1004,14 @@ class $$NotesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> categoryId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<String> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotesCompanion(
                 id: id,
                 categoryId: categoryId,
+                userId: userId,
                 content: content,
                 createdAt: createdAt,
                 rowid: rowid,
@@ -884,12 +1020,14 @@ class $$NotesTableTableManager
               ({
                 required String id,
                 required String categoryId,
+                Value<String?> userId = const Value.absent(),
                 required String content,
                 required String createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => NotesCompanion.insert(
                 id: id,
                 categoryId: categoryId,
+                userId: userId,
                 content: content,
                 createdAt: createdAt,
                 rowid: rowid,

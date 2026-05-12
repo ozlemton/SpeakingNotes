@@ -1,9 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import '../services/app_database.dart';
 import '../services/repository_service.dart';
 import '../services/sync_service.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/sign_up_usecase.dart';
+import '../../features/auth/domain/usecases/sign_in_usecase.dart';
+import '../../features/auth/domain/usecases/sign_out_usecase.dart';
+import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/category/data/repositories/firebase_category_repository.dart';
 import '../../features/category/data/repositories/local_category_repository.dart';
 import '../../features/category/domain/repositories/category_repository.dart';
@@ -35,6 +43,27 @@ Future<void> setupDependencies() async {
   }
   getIt.registerSingleton<SpeechService>(speechService);
 
+  // Auth
+  getIt.registerSingleton<AuthRepository>(
+    FirebaseAuthRepository(FirebaseAuth.instance, FirebaseFirestore.instance),
+  );
+  getIt.registerFactory<SignUpUseCase>(
+      () => SignUpUseCase(getIt<AuthRepository>()));
+  getIt.registerFactory<SignInUseCase>(
+      () => SignInUseCase(getIt<AuthRepository>()));
+  getIt.registerFactory<SignOutUseCase>(
+      () => SignOutUseCase(getIt<AuthRepository>()));
+  getIt.registerFactory<GetCurrentUserUseCase>(
+      () => GetCurrentUserUseCase(getIt<AuthRepository>()));
+  getIt.registerLazySingleton<AuthBloc>(
+    () => AuthBloc(
+      signUp: getIt<SignUpUseCase>(),
+      signIn: getIt<SignInUseCase>(),
+      signOut: getIt<SignOutUseCase>(),
+      getCurrentUser: getIt<GetCurrentUserUseCase>(),
+    ),
+  );
+
   // Concrete repositories
   getIt.registerSingleton<LocalCategoryRepository>(
     LocalCategoryRepository(getIt<AppDatabase>()),
@@ -49,7 +78,7 @@ Future<void> setupDependencies() async {
     FirebaseNoteRepository(FirebaseFirestore.instance),
   );
 
-  // Dual-write repository services (local read, local+firebase write)
+  // Dual-write repository services
   getIt.registerSingleton<CategoryRepository>(
     RepositoryCategoryService(
       getIt<LocalCategoryRepository>(),
@@ -115,4 +144,20 @@ Future<void> setupDependencies() async {
       deleteNote: getIt<DeleteNoteUseCase>(),
     ),
   );
+}
+
+/// Call this after successful sign-in/sign-up to scope all repos to the user.
+void setCurrentUserId(String userId) {
+  getIt<LocalCategoryRepository>().setUserId(userId);
+  getIt<FirebaseCategoryRepository>().setUserId(userId);
+  getIt<LocalNoteRepository>().setUserId(userId);
+  getIt<FirebaseNoteRepository>().setUserId(userId);
+}
+
+/// Call this after sign-out to clear user scope.
+void clearCurrentUserId() {
+  getIt<LocalCategoryRepository>().setUserId(null);
+  getIt<FirebaseCategoryRepository>().setUserId(null);
+  getIt<LocalNoteRepository>().setUserId(null);
+  getIt<FirebaseNoteRepository>().setUserId(null);
 }

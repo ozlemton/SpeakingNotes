@@ -4,15 +4,21 @@ import '../../domain/repositories/category_repository.dart';
 
 class FirebaseCategoryRepository implements CategoryRepository {
   final FirebaseFirestore _firestore;
+  String? _userId;
 
   FirebaseCategoryRepository(this._firestore);
+
+  void setUserId(String? userId) => _userId = userId;
 
   CollectionReference get _collection => _firestore.collection('categories');
 
   @override
   Future<List<Category>> getAllCategories() async {
     try {
-      final snapshot = await _collection.get();
+      final query = _userId != null
+          ? _collection.where('userId', isEqualTo: _userId)
+          : _collection;
+      final snapshot = await query.get();
       return snapshot.docs
           .map((doc) => Category.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
@@ -24,7 +30,9 @@ class FirebaseCategoryRepository implements CategoryRepository {
   @override
   Future<void> createCategory(Category category) async {
     try {
-      await _collection.doc(category.id).set(category.toJson());
+      final data = category.toJson();
+      if (_userId != null) data['userId'] = _userId;
+      await _collection.doc(category.id).set(data);
     } catch (e) {
       throw Exception('Failed to save category to Firebase: $e');
     }

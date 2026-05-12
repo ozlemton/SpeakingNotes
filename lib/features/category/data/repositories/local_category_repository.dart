@@ -5,17 +5,25 @@ import '../../domain/repositories/category_repository.dart';
 
 class LocalCategoryRepository implements CategoryRepository {
   final AppDatabase db;
+  String? _userId;
 
   LocalCategoryRepository(this.db);
+
+  void setUserId(String? userId) => _userId = userId;
 
   @override
   Future<List<domain.Category>> getAllCategories() async {
     try {
-      final rows = await db.select(db.categories).get();
+      final query = db.select(db.categories);
+      if (_userId != null) {
+        query.where((t) => t.userId.equals(_userId!));
+      }
+      final rows = await query.get();
       return rows
           .map((r) => domain.Category(
                 id: r.id,
                 name: r.name,
+                userId: r.userId,
                 createdAt: DateTime.parse(r.createdAt),
               ))
           .toList();
@@ -30,6 +38,7 @@ class LocalCategoryRepository implements CategoryRepository {
       await db.into(db.categories).insert(CategoriesCompanion.insert(
             id: category.id,
             name: category.name,
+            userId: Value(category.userId ?? _userId),
             createdAt: category.createdAt.toIso8601String(),
           ));
     } catch (e) {

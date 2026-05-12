@@ -9,6 +9,7 @@ part 'app_database.g.dart';
 class Categories extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get userId => text().nullable()();
   TextColumn get createdAt => text()();
 
   @override
@@ -18,6 +19,7 @@ class Categories extends Table {
 class Notes extends Table {
   TextColumn get id => text()();
   TextColumn get categoryId => text()();
+  TextColumn get userId => text().nullable()();
   TextColumn get content => text()();
   TextColumn get createdAt => text()();
 
@@ -30,7 +32,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (migrator, from, to) async {
+          if (from < 2) {
+            await migrator.addColumn(categories, categories.userId);
+            await migrator.addColumn(notes, notes.userId);
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {
