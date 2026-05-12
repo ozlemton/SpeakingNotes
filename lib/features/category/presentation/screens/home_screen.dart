@@ -65,6 +65,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRecordingSheet() {
+    if (_selectedCategory == null) {
+      _showCategoryPickerThenRecording();
+    } else {
+      _openRecordingSheet(_selectedCategory);
+    }
+  }
+
+  void _showCategoryPickerThenRecording() {
+    final categoryBloc = context.read<CategoryBloc>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: categoryBloc,
+        child: _CategoryBottomSheet(
+          selectedCategory: null,
+          onSelect: (category) {
+            Navigator.pop(context);
+            _openRecordingSheet(category);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _openRecordingSheet(Category? category) {
     final categoryBloc = context.read<CategoryBloc>();
     final noteBloc = context.read<NoteBloc>();
     showModalBottomSheet(
@@ -77,13 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BlocProvider.value(value: noteBloc),
         ],
         child: _RecordingBottomSheet(
-          selectedCategory: _selectedCategory,
-          onNoteCreated: () {
-            if (_selectedCategory == null) {
-              noteBloc.add(LoadAllNotes());
-            } else {
-              noteBloc.add(LoadNotes(_selectedCategory!.id));
-            }
+          selectedCategory: category,
+          onNoteCreated: (savedCategory) {
+            setState(() => _selectedCategory = savedCategory);
+            noteBloc.add(LoadNotes(savedCategory.id));
           },
         ),
       ),
@@ -593,7 +617,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
 
 class _RecordingBottomSheet extends StatefulWidget {
   final Category? selectedCategory;
-  final VoidCallback onNoteCreated;
+  final void Function(Category) onNoteCreated;
 
   const _RecordingBottomSheet({
     required this.selectedCategory,
@@ -640,12 +664,6 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         _seconds = 0;
       });
     } else {
-      if (_targetCategory == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a category first')),
-        );
-        return;
-      }
       _timer = Timer.periodic(
           const Duration(seconds: 1), (_) => setState(() => _seconds++));
       setState(() => _isRecording = true);
@@ -672,7 +690,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             _isRecording = false;
             _seconds = 0;
           });
-          widget.onNoteCreated();
+          widget.onNoteCreated(targetCategory);
           navigator.pop();
         });
       } else {
@@ -694,31 +712,12 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               _isRecording = false;
               _seconds = 0;
             });
-            widget.onNoteCreated();
+            widget.onNoteCreated(targetCategory);
             Navigator.pop(context);
           },
         );
       }
     }
-  }
-
-  void _showCategorySheet(BuildContext context) {
-    final categoryBloc = context.read<CategoryBloc>();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider.value(
-        value: categoryBloc,
-        child: _CategoryBottomSheet(
-          selectedCategory: _targetCategory,
-          onSelect: (category) {
-            Navigator.pop(context);
-            setState(() => _targetCategory = category);
-          },
-        ),
-      ),
-    );
   }
 
   @override
@@ -782,34 +781,20 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => _showCategorySheet(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              decoration: BoxDecoration(
-                color: _primaryColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.folder_outlined, color: _primaryColor, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                _targetCategory?.name ?? '',
+                style: const TextStyle(
+                  color: _primaryColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.folder_outlined,
-                      color: _primaryColor, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    _targetCategory?.name ?? 'Select Category',
-                    style: const TextStyle(
-                      color: _primaryColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down,
-                      color: _primaryColor, size: 16),
-                ],
-              ),
-            ),
+            ],
           ),
           const SizedBox(height: 36),
           _WaveformWidget(isAnimating: _isRecording),

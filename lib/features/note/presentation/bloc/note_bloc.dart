@@ -54,24 +54,9 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     CreateNote event,
     Emitter<NoteState> emit,
   ) async {
-    print('[BLOC] CreateNote received, content: ${event.note.content}');
     try {
       await createNote(event.note);
-      print('[BLOC] Note saved to repository');
-      final currentState = state;
-      print('[BLOC] Current state after save: $currentState');
-      if (currentState is NoteLoaded && currentState.notes.isNotEmpty) {
-        final notes = await getNotesByCategory(currentState.notes.first.categoryId);
-        print('[BLOC] Emitting NoteLoaded with ${notes.length} notes');
-        emit(NoteLoaded(notes));
-      } else {
-        print('[BLOC] State is not NoteLoaded or notes is empty — reloading by note categoryId');
-        final notes = await getNotesByCategory(event.note.categoryId);
-        print('[BLOC] Emitting NoteLoaded with ${notes.length} notes');
-        emit(NoteLoaded(notes));
-      }
     } catch (e) {
-      print('[BLOC] Error in CreateNote: $e');
       emit(NoteError(e.toString()));
     }
   }
@@ -82,11 +67,6 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   ) async {
     try {
       await deleteNote(event.id);
-      final currentState = state;
-      if (currentState is NoteLoaded && currentState.notes.isNotEmpty) {
-        final notes = await getNotesByCategory(currentState.notes.first.categoryId);
-        emit(NoteLoaded(notes));
-      }
     } catch (e) {
       emit(NoteError(e.toString()));
     }
