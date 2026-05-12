@@ -37,7 +37,6 @@ class LocalNoteRepository implements NoteRepository {
 
   @override
   Future<void> createNote(domain.Note note) async {
-    print('[REPO] Saving note to DB: id=${note.id}, categoryId=${note.categoryId}, content=${note.content}');
     await db.into(db.notes).insert(NotesCompanion.insert(
           id: note.id,
           categoryId: note.categoryId,

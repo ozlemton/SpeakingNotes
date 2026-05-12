@@ -247,7 +247,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNotesList() {
     return BlocBuilder<NoteBloc, NoteState>(
       builder: (context, state) {
-        print('[UI] NoteBloc state changed: $state');
         if (state is NoteLoading) {
           return const Center(
               child: CircularProgressIndicator(color: _primaryColor));
@@ -672,18 +671,15 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         final noteBloc = context.read<NoteBloc>();
         final navigator = Navigator.of(context);
         final targetCategory = _targetCategory!;
-        print('[TEST] Selected category: id=${targetCategory.id}, name=${targetCategory.name}');
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
           final text = _speechService.generateMockText();
-          print('[TEST] Mock text generated: $text');
           final note = Note(
             id: const Uuid().v4(),
             categoryId: targetCategory.id,
             content: text,
             createdAt: DateTime.now(),
           );
-          print('[TEST] Dispatching CreateNote: categoryId=${note.categoryId}, categoryName=${targetCategory.name}');
           noteBloc.add(CreateNote(note));
           _timer?.cancel();
           setState(() {
@@ -695,7 +691,6 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         });
       } else {
         final targetCategory = _targetCategory!;
-        print('[SPEECH] Selected category: id=${targetCategory.id}, name=${targetCategory.name}');
         _speechService.startListening(
           onResult: (text) {
             if (text.isEmpty) return;

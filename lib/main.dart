@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 import 'core/di/injection.dart';
+import 'core/services/sync_service.dart';
 import 'features/category/presentation/bloc/category_bloc.dart';
 import 'features/category/presentation/bloc/category_event.dart';
 import 'features/category/presentation/screens/home_screen.dart';
@@ -14,6 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupDependencies();
+  getIt<SyncService>().syncAll();
   runApp(const MyApp());
 }
 
