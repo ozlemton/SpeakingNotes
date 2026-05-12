@@ -30,75 +30,95 @@ class SyncService {
 
   Future<void> syncAll() async {
     try {
-      if (!await _isOnline()) return;
+      debugPrint('[Sync] syncAll() started');
+      if (!await _isOnline()) {
+        debugPrint('[Sync] offline — skipping sync');
+        return;
+      }
+      debugPrint('[Sync] online — starting category and note sync');
       await _syncCategories();
       await _syncNotes();
+      debugPrint('[Sync] syncAll() completed');
     } catch (e) {
-      debugPrint('SyncService.syncAll failed: $e');
+      debugPrint('[Sync] syncAll() failed: $e');
     }
   }
 
   Future<void> _syncCategories() async {
     try {
+      debugPrint('[Sync] _syncCategories: fetching from Firebase...');
       final remote = await firebaseCategories.getAllCategories();
+      debugPrint('[Sync] _syncCategories: ${remote.length} categories from Firebase');
+
+      debugPrint('[Sync] _syncCategories: fetching from local DB...');
       final local = await localCategories.getAllCategories();
+      debugPrint('[Sync] _syncCategories: ${local.length} categories from local DB');
 
       final localIds = local.map((c) => c.id).toSet();
       final remoteIds = remote.map((c) => c.id).toSet();
 
-      for (final category in remote) {
-        if (!localIds.contains(category.id)) {
-          try {
-            await localCategories.createCategory(category);
-          } catch (e) {
-            debugPrint('Failed to sync remote category ${category.id} to local: $e');
-          }
+      final toAddLocally = remote.where((c) => !localIds.contains(c.id)).toList();
+      final toAddRemotely = local.where((c) => !remoteIds.contains(c.id)).toList();
+      debugPrint('[Sync] _syncCategories: ${toAddLocally.length} to add locally, ${toAddRemotely.length} to push to Firebase');
+
+      for (final category in toAddLocally) {
+        try {
+          await localCategories.createCategory(category);
+          debugPrint('[Sync] _syncCategories: added "${category.name}" to local DB');
+        } catch (e) {
+          debugPrint('[Sync] _syncCategories: failed to add "${category.name}" locally: $e');
         }
       }
 
-      for (final category in local) {
-        if (!remoteIds.contains(category.id)) {
-          try {
-            await firebaseCategories.createCategory(category);
-          } catch (e) {
-            debugPrint('Failed to sync local category ${category.id} to Firebase: $e');
-          }
+      for (final category in toAddRemotely) {
+        try {
+          await firebaseCategories.createCategory(category);
+          debugPrint('[Sync] _syncCategories: pushed "${category.name}" to Firebase');
+        } catch (e) {
+          debugPrint('[Sync] _syncCategories: failed to push "${category.name}" to Firebase: $e');
         }
       }
     } catch (e) {
-      debugPrint('_syncCategories failed: $e');
+      debugPrint('[Sync] _syncCategories failed: $e');
     }
   }
 
   Future<void> _syncNotes() async {
     try {
+      debugPrint('[Sync] _syncNotes: fetching from Firebase...');
       final remote = await firebaseNotes.getAllNotes();
+      debugPrint('[Sync] _syncNotes: ${remote.length} notes from Firebase');
+
+      debugPrint('[Sync] _syncNotes: fetching from local DB...');
       final local = await localNotes.getAllNotes();
+      debugPrint('[Sync] _syncNotes: ${local.length} notes from local DB');
 
       final localIds = local.map((n) => n.id).toSet();
       final remoteIds = remote.map((n) => n.id).toSet();
 
-      for (final note in remote) {
-        if (!localIds.contains(note.id)) {
-          try {
-            await localNotes.createNote(note);
-          } catch (e) {
-            debugPrint('Failed to sync remote note ${note.id} to local: $e');
-          }
+      final toAddLocally = remote.where((n) => !localIds.contains(n.id)).toList();
+      final toAddRemotely = local.where((n) => !remoteIds.contains(n.id)).toList();
+      debugPrint('[Sync] _syncNotes: ${toAddLocally.length} to add locally, ${toAddRemotely.length} to push to Firebase');
+
+      for (final note in toAddLocally) {
+        try {
+          await localNotes.createNote(note);
+          debugPrint('[Sync] _syncNotes: added note ${note.id} to local DB');
+        } catch (e) {
+          debugPrint('[Sync] _syncNotes: failed to add note ${note.id} locally: $e');
         }
       }
 
-      for (final note in local) {
-        if (!remoteIds.contains(note.id)) {
-          try {
-            await firebaseNotes.createNote(note);
-          } catch (e) {
-            debugPrint('Failed to sync local note ${note.id} to Firebase: $e');
-          }
+      for (final note in toAddRemotely) {
+        try {
+          await firebaseNotes.createNote(note);
+          debugPrint('[Sync] _syncNotes: pushed note ${note.id} to Firebase');
+        } catch (e) {
+          debugPrint('[Sync] _syncNotes: failed to push note ${note.id} to Firebase: $e');
         }
       }
     } catch (e) {
-      debugPrint('_syncNotes failed: $e');
+      debugPrint('[Sync] _syncNotes failed: $e');
     }
   }
 }

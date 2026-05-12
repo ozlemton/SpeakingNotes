@@ -31,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Category? _selectedCategory;
   String _searchQuery = '';
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -40,6 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (widget.showFirebaseError) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _showFirebaseErrorDialog());
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _showFirebaseErrorDialog() {
@@ -223,14 +230,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       child: TextField(
+        controller: _searchController,
         onChanged: (v) => setState(() => _searchQuery = v),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Search notes...',
-          hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-          prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
-          suffixIcon: Icon(Icons.tune, color: Colors.grey, size: 20),
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 20),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                  child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                )
+              : null,
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
@@ -430,14 +446,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       .contains(_searchQuery.toLowerCase()))
                   .toList();
           if (notes.isEmpty) {
+            final isSearching = _searchQuery.isNotEmpty;
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.mic_none, size: 72, color: Colors.grey[300]),
+                  Icon(
+                    isSearching ? Icons.search_off : Icons.mic_none,
+                    size: 72,
+                    color: Colors.grey[300],
+                  ),
                   const SizedBox(height: 16),
                   Text(
-                    'No notes yet. Tap the mic to record.',
+                    isSearching
+                        ? 'No notes found for your search.'
+                        : 'No notes yet. Tap the mic to record.',
                     style: TextStyle(color: Colors.grey[400], fontSize: 15),
                   ),
                 ],

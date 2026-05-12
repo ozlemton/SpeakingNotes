@@ -99,7 +99,7 @@ Future<void> setupDependencies() async {
     () => DeleteNoteUseCase(getIt<NoteRepository>()),
   );
 
-  getIt.registerFactory<CategoryBloc>(
+  getIt.registerLazySingleton<CategoryBloc>(
     () => CategoryBloc(
       getAllCategories: getIt<GetAllCategoriesUseCase>(),
       createCategory: getIt<CreateCategoryUseCase>(),
@@ -107,7 +107,7 @@ Future<void> setupDependencies() async {
       deleteCategory: getIt<DeleteCategoryUseCase>(),
     ),
   );
-  getIt.registerFactory<NoteBloc>(
+  getIt.registerLazySingleton<NoteBloc>(
     () => NoteBloc(
       getAllNotes: getIt<GetAllNotesUseCase>(),
       getNotesByCategory: getIt<GetNotesByCategoryUseCase>(),

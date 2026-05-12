@@ -8,6 +8,7 @@ import 'features/category/presentation/bloc/category_bloc.dart';
 import 'features/category/presentation/bloc/category_event.dart';
 import 'features/category/presentation/screens/home_screen.dart';
 import 'features/note/presentation/bloc/note_bloc.dart';
+import 'features/note/presentation/bloc/note_event.dart';
 import 'features/note/presentation/screens/category_screen.dart';
 import 'features/category/domain/models/category.dart';
 
@@ -22,7 +23,10 @@ Future<void> main() async {
   }
 
   await setupDependencies();
-  getIt<SyncService>().syncAll();
+  getIt<SyncService>().syncAll().then((_) {
+    getIt<CategoryBloc>().add(LoadCategories());
+    getIt<NoteBloc>().add(LoadAllNotes());
+  });
 
   runApp(MyApp(firebaseFailed: firebaseFailed));
 }
