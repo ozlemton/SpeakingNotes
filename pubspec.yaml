@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
   speech_to_text: ^7.0.0
   flutter_bloc: ^8.1.6
@@ -23,6 +26,7 @@ dependencies:
   uuid: ^4.5.1
   connectivity_plus: ^6.1.4
   firebase_auth: ^5.5.4
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:
@@ -33,3 +37,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true

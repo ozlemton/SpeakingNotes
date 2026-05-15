@@ -23,6 +23,16 @@ class UserModel {
     );
   }
 
+  UserModel copyWith({String? language}) {
+    return UserModel(
+      id: id,
+      username: username,
+      email: email,
+      language: language ?? this.language,
+      createdAt: createdAt,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

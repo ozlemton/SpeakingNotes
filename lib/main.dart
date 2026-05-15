@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'core/di/injection.dart';
 import 'core/services/sync_service.dart';
@@ -29,13 +31,21 @@ Future<void> main() async {
 
   await setupDependencies();
 
-  runApp(MyApp(firebaseFailed: firebaseFailed));
+  final prefs = await SharedPreferences.getInstance();
+  final savedLanguage = prefs.getString('language') ?? 'en';
+
+  runApp(MyApp(firebaseFailed: firebaseFailed, initialLanguage: savedLanguage));
 }
 
 class MyApp extends StatelessWidget {
   final bool firebaseFailed;
+  final String initialLanguage;
 
-  const MyApp({super.key, this.firebaseFailed = false});
+  const MyApp({
+    super.key,
+    this.firebaseFailed = false,
+    this.initialLanguage = 'en',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,22 +61,32 @@ class MyApp extends StatelessWidget {
           create: (_) => getIt<NoteBloc>(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Speaking Notes',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-          useMaterial3: true,
-        ),
-        home: _AppRouter(firebaseFailed: firebaseFailed),
-        onGenerateRoute: (settings) {
-          if (settings.name == '/category') {
-            final category = settings.arguments as Category;
-            return MaterialPageRoute(
-              builder: (_) => CategoryScreen(category: category),
-            );
-          }
-          return null;
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final language = authState is AuthAuthenticated
+              ? authState.user.language
+              : initialLanguage;
+          return MaterialApp(
+            title: 'Speaking Notes',
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale(language),
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+              useMaterial3: true,
+            ),
+            home: _AppRouter(firebaseFailed: firebaseFailed),
+            onGenerateRoute: (settings) {
+              if (settings.name == '/category') {
+                final category = settings.arguments as Category;
+                return MaterialPageRoute(
+                  builder: (_) => CategoryScreen(category: category),
+                );
+              }
+              return null;
+            },
+          );
         },
       ),
     );

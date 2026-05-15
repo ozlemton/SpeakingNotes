@@ -11,6 +11,7 @@ import '../../features/auth/domain/usecases/sign_up_usecase.dart';
 import '../../features/auth/domain/usecases/sign_in_usecase.dart';
 import '../../features/auth/domain/usecases/sign_out_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/update_language_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/category/data/repositories/firebase_category_repository.dart';
 import '../../features/category/data/repositories/local_category_repository.dart';
@@ -55,12 +56,15 @@ Future<void> setupDependencies() async {
       () => SignOutUseCase(getIt<AuthRepository>()));
   getIt.registerFactory<GetCurrentUserUseCase>(
       () => GetCurrentUserUseCase(getIt<AuthRepository>()));
+  getIt.registerFactory<UpdateLanguageUseCase>(
+      () => UpdateLanguageUseCase(getIt<AuthRepository>()));
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
       signUp: getIt<SignUpUseCase>(),
       signIn: getIt<SignInUseCase>(),
       signOut: getIt<SignOutUseCase>(),
       getCurrentUser: getIt<GetCurrentUserUseCase>(),
+      updateLanguage: getIt<UpdateLanguageUseCase>(),
     ),
   );
 
@@ -152,6 +156,13 @@ void setCurrentUserId(String userId) {
   getIt<FirebaseCategoryRepository>().setUserId(userId);
   getIt<LocalNoteRepository>().setUserId(userId);
   getIt<FirebaseNoteRepository>().setUserId(userId);
+}
+
+/// Wipes all local data — call on sign-out.
+Future<void> clearLocalDatabase() async {
+  final db = getIt<AppDatabase>();
+  await db.delete(db.notes).go();
+  await db.delete(db.categories).go();
 }
 
 /// Call this after sign-out to clear user scope.

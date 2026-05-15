@@ -70,6 +70,15 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
+  @override
+  Future<void> updateLanguage(String userId, String language) async {
+    try {
+      await _users.doc(userId).update({'language': language});
+    } catch (e) {
+      throw Exception('Failed to update language: $e');
+    }
+  }
+
   Future<UserModel> _fetchUserProfile(String uid) async {
     final doc = await _users.doc(uid).get();
     if (!doc.exists) throw Exception('User profile not found');

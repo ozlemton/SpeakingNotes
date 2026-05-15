@@ -15,6 +15,7 @@ import '../../../note/domain/models/note.dart';
 import '../../../note/presentation/bloc/note_bloc.dart';
 import '../../../note/presentation/bloc/note_event.dart';
 import '../../../note/presentation/bloc/note_state.dart';
+import '../../../auth/presentation/screens/profile_screen.dart';
 
 const _primaryColor = Color(0xFF5B5FEF);
 const _backgroundColor = Color(0xFFF5F5F5);
@@ -188,29 +189,50 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black87,
           ),
         ),
-        GestureDetector(
-          onTap: _showCategorySheet,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: _primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.folder_outlined, color: _primaryColor, size: 18),
-                SizedBox(width: 6),
-                Text(
-                  'Category',
-                  style: TextStyle(
-                    color: _primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+        Row(
+          children: [
+            GestureDetector(
+              onTap: _showCategorySheet,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: _primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+                child: const Row(
+                  children: [
+                    Icon(Icons.folder_outlined, color: _primaryColor, size: 18),
+                    SizedBox(width: 6),
+                    Text(
+                      'Category',
+                      style: TextStyle(
+                        color: _primaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              ),
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: _primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.person_outline,
+                    color: _primaryColor, size: 20),
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -25,3 +25,8 @@ class SignIn extends AuthEvent {
 }
 
 class SignOut extends AuthEvent {}
+
+class UpdateLanguage extends AuthEvent {
+  final String language;
+  UpdateLanguage(this.language);
+}
