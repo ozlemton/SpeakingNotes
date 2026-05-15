@@ -5,15 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../category/domain/models/category.dart';
 import '../../domain/models/note.dart';
 import '../bloc/note_bloc.dart';
 import '../bloc/note_event.dart';
 import '../bloc/note_state.dart';
-
-const _primaryColor = Color(0xFF5B5FEF);
-const _backgroundColor = Color(0xFFF5F5F5);
 
 class CategoryScreen extends StatefulWidget {
   final Category category;
@@ -50,36 +49,29 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: _backgroundColor,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.arrow_back_ios_new,
-                size: 18, color: Colors.black87),
+                size: 18, color: AppColors.textPrimary),
           ),
         ),
-        title: Text(
-          widget.category.name,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
+        title: Text(widget.category.name, style: AppTypography.heading2),
       ),
       body: BlocBuilder<NoteBloc, NoteState>(
         builder: (context, state) {
           if (state is NoteLoading) {
             return const Center(
-                child: CircularProgressIndicator(color: _primaryColor));
+                child: CircularProgressIndicator(color: AppColors.primary));
           }
           if (state is NoteError) {
             return Center(
@@ -88,9 +80,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Something went wrong. Please try again.',
-                    style: TextStyle(color: Colors.black54, fontSize: 15),
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -106,8 +99,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'No notes yet. Tap the mic to record.',
-                      style:
-                          TextStyle(color: Colors.grey[400], fontSize: 15),
+                      style: AppTypography.body2
+                          .copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -124,8 +117,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showRecordingSheet,
-        backgroundColor: _primaryColor,
-        child: const Icon(Icons.mic, color: Colors.white),
+        child: const Icon(Icons.mic),
       ),
     );
   }
@@ -148,7 +140,7 @@ class _NoteCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -164,11 +156,11 @@ class _NoteCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child:
-                const Icon(Icons.description, color: _primaryColor, size: 22),
+            child: const Icon(Icons.description,
+                color: AppColors.primary, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -179,17 +171,11 @@ class _NoteCard extends StatelessWidget {
                   note.content.length > 45
                       ? '${note.content.substring(0, 45)}...'
                       : note.content,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  style: AppTypography.body2
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  _formattedDate,
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
+                Text(_formattedDate, style: AppTypography.caption),
               ],
             ),
           ),
@@ -229,7 +215,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
     final h = _seconds ~/ 3600;
     final m = (_seconds % 3600) ~/ 60;
     final s = _seconds % 60;
-    final ms = 0;
+    const ms = 0;
     return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}:${ms.toString().padLeft(2, '0')}';
   }
 
@@ -275,7 +261,8 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                 _seconds = 0;
               });
               ScaffoldMessenger.of(navigator.context).showSnackBar(
-                const SnackBar(content: Text('Failed to save note. Please try again.')),
+                const SnackBar(
+                    content: Text('Failed to save note. Please try again.')),
               );
             }
           }
@@ -311,7 +298,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
       padding: EdgeInsets.fromLTRB(
           24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 40),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
@@ -337,7 +324,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: _primaryColor,
+                        color: AppColors.primary,
                       ),
                     ),
                     TextSpan(
@@ -345,7 +332,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -374,7 +361,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               fontSize: 32,
               fontWeight: FontWeight.w300,
               letterSpacing: 4,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 40),
@@ -384,11 +371,11 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _isRecording ? Colors.red : _primaryColor,
+                color: _isRecording ? AppColors.error : AppColors.primary,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (_isRecording ? Colors.red : _primaryColor)
+                    color: (_isRecording ? AppColors.error : AppColors.primary)
                         .withValues(alpha: 0.4),
                     blurRadius: 24,
                     spreadRadius: 4,
@@ -397,7 +384,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               ),
               child: Icon(
                 _isRecording ? Icons.stop : Icons.mic,
-                color: Colors.white,
+                color: AppColors.white,
                 size: 36,
               ),
             ),
@@ -471,7 +458,8 @@ class _WaveformWidgetState extends State<_WaveformWidget>
                   height: 8 + h * 60,
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: _primaryColor.withValues(alpha: 0.3 + h * 0.7),
+                    color:
+                        AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ))

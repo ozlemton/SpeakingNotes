@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 import '../../../category/presentation/screens/home_screen.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-
-const _primaryColor = Color(0xFF5B5FEF);
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -61,13 +61,13 @@ class _SignupScreenState extends State<SignupScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: Colors.red[400],
+              backgroundColor: AppColors.error,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -109,31 +109,24 @@ class _SignupScreenState extends State<SignupScreen> {
           width: 72,
           height: 72,
           decoration: BoxDecoration(
-            color: _primaryColor,
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: _primaryColor.withValues(alpha: 0.35),
+                color: AppColors.primary.withValues(alpha: 0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: const Icon(Icons.mic, color: Colors.white, size: 36),
+          child: const Icon(Icons.mic, color: AppColors.white, size: 36),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'SpeakingNotes',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
+        const Text('SpeakingNotes', style: AppTypography.heading1),
         const SizedBox(height: 6),
         Text(
           'Create your account',
-          style: TextStyle(fontSize: 15, color: Colors.grey[500]),
+          style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -197,9 +190,9 @@ class _SignupScreenState extends State<SignupScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
+        border: Border.all(color: AppColors.divider, width: 1),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -214,11 +207,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         const Icon(Icons.language,
                             color: Colors.grey, size: 20),
                         const SizedBox(width: 10),
-                        Text(
-                          lang.$2,
-                          style: TextStyle(
-                              color: Colors.grey[700], fontSize: 14),
-                        ),
+                        Text(lang.$2, style: AppTypography.body2),
                       ],
                     ),
                   ))
@@ -240,30 +229,18 @@ class _SignupScreenState extends State<SignupScreen> {
           child: ElevatedButton(
             onPressed: isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryColor,
-              disabledBackgroundColor: _primaryColor.withValues(alpha: 0.6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              elevation: 0,
+              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
             ),
             child: isLoading
                 ? const SizedBox(
                     width: 22,
                     height: 22,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: AppColors.white,
                       strokeWidth: 2.5,
                     ),
                   )
-                : const Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                : const Text('Sign Up'),
           ),
         );
       },
@@ -274,15 +251,16 @@ class _SignupScreenState extends State<SignupScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('Already have an account? ',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+        Text(
+          'Already have an account? ',
+          style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
+        ),
         GestureDetector(
           onTap: () => Navigator.of(context).pop(),
-          child: const Text(
+          child: Text(
             'Login',
-            style: TextStyle(
-              color: _primaryColor,
-              fontSize: 14,
+            style: AppTypography.body2.copyWith(
+              color: AppColors.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -295,31 +273,8 @@ class _SignupScreenState extends State<SignupScreen> {
       {Widget? suffix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
       prefixIcon: Icon(icon, color: Colors.grey, size: 20),
       suffixIcon: suffix,
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: _primaryColor, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.red[300]!, width: 1),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.red[400]!, width: 1.5),
-      ),
     );
   }
 }

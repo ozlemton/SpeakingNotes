@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
 import '../../domain/models/category.dart';
 import '../bloc/category_bloc.dart';
@@ -17,8 +19,6 @@ import '../../../note/presentation/bloc/note_event.dart';
 import '../../../note/presentation/bloc/note_state.dart';
 import '../../../auth/presentation/screens/profile_screen.dart';
 
-const _primaryColor = Color(0xFF5B5FEF);
-const _backgroundColor = Color(0xFFF5F5F5);
 
 class HomeScreen extends StatefulWidget {
   final bool showFirebaseError;
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,8 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showRecordingSheet,
-        backgroundColor: _primaryColor,
-        child: const Icon(Icons.mic, color: Colors.white),
+        child: const Icon(Icons.mic),
       ),
     );
   }
@@ -181,14 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'SpeakingNotes',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
+        const Text('SpeakingNotes', style: AppTypography.heading1),
         Row(
           children: [
             GestureDetector(
@@ -197,17 +189,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: _primaryColor.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.folder_outlined, color: _primaryColor, size: 18),
+                    Icon(Icons.folder_outlined, color: AppColors.primary, size: 18),
                     SizedBox(width: 6),
                     Text(
                       'Category',
                       style: TextStyle(
-                        color: _primaryColor,
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
@@ -225,11 +217,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: _primaryColor.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.person_outline,
-                    color: _primaryColor, size: 20),
+                    color: AppColors.primary, size: 20),
               ),
             ),
           ],
@@ -349,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 8),
             ListTile(
-              leading: const Icon(Icons.edit_outlined, color: _primaryColor),
+              leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
@@ -442,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state is NoteLoading) {
           return const Center(
-              child: CircularProgressIndicator(color: _primaryColor));
+              child: CircularProgressIndicator(color: AppColors.primary));
         }
         if (state is NoteError) {
           return Center(
@@ -584,14 +576,14 @@ class _FilterChipState extends State<_FilterChip> {
             decoration: BoxDecoration(
               color: _pressed
                   ? (widget.isSelected
-                      ? _primaryColor.withValues(alpha: 0.85)
+                      ? AppColors.primary.withValues(alpha: 0.85)
                       : Colors.grey[100])
-                  : (widget.isSelected ? _primaryColor : Colors.white),
+                  : (widget.isSelected ? AppColors.primary : Colors.white),
               borderRadius: BorderRadius.circular(20),
               boxShadow: widget.isSelected
                   ? [
                       BoxShadow(
-                        color: _primaryColor.withValues(
+                        color: AppColors.primary.withValues(
                             alpha: _pressed ? 0.15 : 0.3),
                         blurRadius: _pressed ? 4 : 8,
                         offset: const Offset(0, 3),
@@ -655,10 +647,10 @@ class _NoteCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.description, color: _primaryColor, size: 22),
+            child: const Icon(Icons.description, color: AppColors.primary, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -827,11 +819,11 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color: _primaryColor.withValues(alpha: 0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(Icons.folder,
-                                color: _primaryColor, size: 18),
+                                color: AppColors.primary, size: 18),
                           ),
                           title: Text(cat.name,
                               style: const TextStyle(
@@ -839,7 +831,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                           trailing: Radio<Category?>(
                             value: cat,
                             groupValue: _selected,
-                            activeColor: _primaryColor,
+                            activeColor: AppColors.primary,
                             onChanged: (v) => setState(() => _selected = v),
                           ),
                           onTap: () => setState(() => _selected = cat),
@@ -855,7 +847,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: _primaryColor,
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 20),
@@ -875,7 +867,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                   ? null
                   : () => widget.onSelect(_selected),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
+                backgroundColor: AppColors.primary,
                 disabledBackgroundColor: Colors.grey[200],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -1043,7 +1035,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: _primaryColor,
+                        color: AppColors.primary,
                       ),
                     ),
                     TextSpan(
@@ -1075,12 +1067,12 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.folder_outlined, color: _primaryColor, size: 16),
+              const Icon(Icons.folder_outlined, color: AppColors.primary, size: 16),
               const SizedBox(width: 6),
               Text(
                 _targetCategory?.name ?? '',
                 style: const TextStyle(
-                  color: _primaryColor,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
                 ),
@@ -1106,11 +1098,11 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _isRecording ? Colors.red : _primaryColor,
+                color: _isRecording ? Colors.red : AppColors.primary,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (_isRecording ? Colors.red : _primaryColor)
+                    color: (_isRecording ? Colors.red : AppColors.primary)
                         .withValues(alpha: 0.4),
                     blurRadius: 24,
                     spreadRadius: 4,
@@ -1192,7 +1184,7 @@ class _WaveformWidgetState extends State<_WaveformWidget>
                   height: 8 + h * 60,
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: _primaryColor.withValues(alpha: 0.3 + h * 0.7),
+                    color: AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ))

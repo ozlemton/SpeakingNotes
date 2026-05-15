@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../category/presentation/bloc/category_bloc.dart';
 import '../../../category/presentation/bloc/category_event.dart';
@@ -10,8 +12,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'login_screen.dart';
-
-const _primaryColor = Color(0xFF5B5FEF);
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -28,21 +28,18 @@ class ProfileScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: const Color(0xFFF5F5F5),
+          backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
+            icon: const Icon(Icons.arrow_back_ios_new,
+                color: AppColors.textPrimary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             AppLocalizations.of(context)!.profile,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+            style: AppTypography.heading3,
           ),
         ),
         body: BlocBuilder<AuthBloc, AuthState>(
@@ -57,18 +54,12 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _Avatar(username: user.username),
                   const SizedBox(height: 16),
-                  Text(
-                    user.username,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
+                  Text(user.username, style: AppTypography.heading2),
                   const SizedBox(height: 4),
                   Text(
                     user.email,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 36),
                   _SettingsCard(
@@ -95,17 +86,22 @@ class _Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = username.isNotEmpty
-        ? username.trim().split(' ').map((w) => w[0].toUpperCase()).take(2).join()
+        ? username
+            .trim()
+            .split(' ')
+            .map((w) => w[0].toUpperCase())
+            .take(2)
+            .join()
         : '?';
     return Container(
       width: 88,
       height: 88,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: _primaryColor,
+        color: AppColors.primary,
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withValues(alpha: 0.35),
+            color: AppColors.primary.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -115,7 +111,7 @@ class _Avatar extends StatelessWidget {
         child: Text(
           initials,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.white,
             fontSize: 30,
             fontWeight: FontWeight.bold,
           ),
@@ -133,7 +129,7 @@ class _SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -159,17 +155,10 @@ class _LanguageSelector extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
-          const Icon(Icons.language, color: _primaryColor, size: 22),
+          const Icon(Icons.language, color: AppColors.primary, size: 22),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              l10n.language,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
+            child: Text(l10n.language, style: AppTypography.body1),
           ),
           _LanguageToggle(currentLanguage: currentLanguage),
         ],
@@ -187,7 +176,7 @@ class _LanguageToggle extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F0FF),
+        color: AppColors.primaryLight,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -229,15 +218,14 @@ class _LangButton extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _primaryColor : Colors.transparent,
+          color: selected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: selected ? Colors.white : Colors.grey[600],
+          style: AppTypography.caption.copyWith(
+            color: selected ? AppColors.white : AppColors.textSecondary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 13,
           ),
         ),
       ),
@@ -257,17 +245,11 @@ class _LogoutButton extends StatelessWidget {
       height: 52,
       child: ElevatedButton.icon(
         onPressed: () => _confirmLogout(context),
-        icon: const Icon(Icons.logout, color: Colors.white, size: 20),
-        label: Text(
-          l10n.logout,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        icon: const Icon(Icons.logout, color: AppColors.white, size: 20),
+        label: Text(l10n.logout),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red[400],
+          backgroundColor: AppColors.error,
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -282,17 +264,19 @@ class _LogoutButton extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.logout),
         content: Text(
           'Are you sure you want to logout?',
-          style: TextStyle(color: Colors.grey[700]),
+          style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.cancel,
-                style: const TextStyle(color: Colors.grey)),
+                style: AppTypography.body2
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () async {
@@ -305,8 +289,8 @@ class _LogoutButton extends StatelessWidget {
               }
             },
             child: Text(l10n.logout,
-                style: TextStyle(
-                    color: Colors.red[400], fontWeight: FontWeight.w600)),
+                style: AppTypography.body2.copyWith(
+                    color: AppColors.error, fontWeight: FontWeight.w600)),
           ),
         ],
       ),

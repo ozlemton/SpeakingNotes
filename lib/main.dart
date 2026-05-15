@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'core/theme/app_colors.dart';
+import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'core/di/injection.dart';
@@ -72,10 +74,7 @@ class MyApp extends StatelessWidget {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: Locale(language),
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-              useMaterial3: true,
-            ),
+            theme: AppTheme.lightTheme,
             home: _AppRouter(firebaseFailed: firebaseFailed),
             onGenerateRoute: (settings) {
               if (settings.name == '/category') {
@@ -115,10 +114,10 @@ class _AppRouter extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthLoading || state is AuthInitial) {
           return const Scaffold(
-            backgroundColor: Color(0xFFF5F5F5),
+            backgroundColor: AppColors.background,
             body: Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF5B5FEF),
+                color: AppColors.primary,
               ),
             ),
           );
