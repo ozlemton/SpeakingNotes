@@ -192,7 +192,7 @@ class _SignupScreenState extends State<SignupScreen> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.divider, width: 1),
+        border: Border.all(color: AppColors.divider),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(

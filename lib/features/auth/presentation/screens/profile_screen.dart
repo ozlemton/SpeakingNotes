@@ -49,7 +49,6 @@ class ProfileScreen extends StatelessWidget {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16),
                   _Avatar(username: user.username),

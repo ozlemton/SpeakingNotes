@@ -450,7 +450,6 @@ class _WaveformWidgetState extends State<_WaveformWidget>
       height: 72,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: _bars
             .map((h) => AnimatedContainer(
                   duration: const Duration(milliseconds: 150),

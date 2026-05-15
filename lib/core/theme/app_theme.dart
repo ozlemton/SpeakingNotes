@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 import 'app_typography.dart';
 
@@ -23,16 +24,16 @@ abstract final class AppTheme {
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           filled: true,
           fillColor: AppColors.white,
           labelStyle: TextStyle(
@@ -45,7 +46,7 @@ abstract final class AppTheme {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(14)),
-            borderSide: BorderSide(color: AppColors.divider, width: 1),
+            borderSide: BorderSide(color: AppColors.divider),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -53,7 +54,7 @@ abstract final class AppTheme {
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(14)),
-            borderSide: BorderSide(color: AppColors.error, width: 1),
+            borderSide: BorderSide(color: AppColors.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(14)),

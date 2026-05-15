@@ -1,24 +1,25 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'core/theme/app_colors.dart';
-import 'core/theme/app_theme.dart';
-import 'l10n/app_localizations.dart';
-import 'firebase_options.dart';
+
 import 'core/di/injection.dart';
 import 'core/services/sync_service.dart';
+import 'core/theme/app_colors.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/category/domain/models/category.dart';
 import 'features/category/presentation/bloc/category_bloc.dart';
 import 'features/category/presentation/bloc/category_event.dart';
 import 'features/category/presentation/screens/home_screen.dart';
 import 'features/note/presentation/bloc/note_bloc.dart';
 import 'features/note/presentation/bloc/note_event.dart';
 import 'features/note/presentation/screens/category_screen.dart';
-import 'features/category/domain/models/category.dart';
+import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,23 +1,25 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
-import '../../domain/models/category.dart';
-import '../bloc/category_bloc.dart';
-import '../bloc/category_event.dart';
-import '../bloc/category_state.dart';
+import '../../../auth/presentation/screens/profile_screen.dart';
 import '../../../note/domain/models/note.dart';
 import '../../../note/presentation/bloc/note_bloc.dart';
 import '../../../note/presentation/bloc/note_event.dart';
 import '../../../note/presentation/bloc/note_state.dart';
-import '../../../auth/presentation/screens/profile_screen.dart';
+import '../../domain/models/category.dart';
+import '../bloc/category_bloc.dart';
+import '../bloc/category_event.dart';
+import '../bloc/category_state.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -1176,7 +1178,6 @@ class _WaveformWidgetState extends State<_WaveformWidget>
       height: 72,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: _bars
             .map((h) => AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
