@@ -32,7 +32,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Category? _selectedCategory;
   String _searchQuery = '';
   final _searchController = TextEditingController();
 
@@ -70,16 +69,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _selectCategory(Category? category) {
-    setState(() => _selectedCategory = category);
-    if (category == null) {
-      context.read<NoteBloc>().add(LoadAllNotes());
-    } else {
-      context.read<NoteBloc>().add(LoadNotes(category.id));
-    }
+    context.read<NoteBloc>().add(SelectCategory(category?.id));
   }
 
   void _showCategorySheet() {
     final categoryBloc = context.read<CategoryBloc>();
+    final noteBloc = context.read<NoteBloc>();
+    final selectedId = noteBloc.state.selectedCategoryId;
+    Category? selectedCategory;
+    if (selectedId != null && categoryBloc.state is CategoryLoaded) {
+      final categories = (categoryBloc.state as CategoryLoaded).categories;
+      try {
+        selectedCategory = categories.firstWhere((c) => c.id == selectedId);
+      } catch (_) {}
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -87,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (_) => BlocProvider.value(
         value: categoryBloc,
         child: _CategoryBottomSheet(
-          selectedCategory: _selectedCategory,
+          selectedCategory: selectedCategory,
           onSelect: (category) {
             Navigator.pop(context);
             _selectCategory(category);
@@ -98,10 +101,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRecordingSheet() {
-    if (_selectedCategory == null) {
+    final noteBloc = context.read<NoteBloc>();
+    final categoryState = context.read<CategoryBloc>().state;
+    final selectedId = noteBloc.state.selectedCategoryId;
+    Category? selectedCategory;
+    if (selectedId != null && categoryState is CategoryLoaded) {
+      try {
+        selectedCategory = categoryState.categories.firstWhere((c) => c.id == selectedId);
+      } catch (_) {}
+    }
+    if (selectedCategory == null) {
       _showCategoryPickerThenRecording();
     } else {
-      _openRecordingSheet(_selectedCategory);
+      _openRecordingSheet(selectedCategory);
     }
   }
 
@@ -139,8 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _RecordingBottomSheet(
           selectedCategory: category,
           onNoteCreated: (savedCategory) {
-            setState(() => _selectedCategory = savedCategory);
-            noteBloc.add(LoadNotes(savedCategory.id));
+            noteBloc.add(SelectCategory(savedCategory.id));
           },
         ),
       ),
@@ -270,16 +281,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<CategoryBloc, CategoryState>(
       listener: (context, state) {
         if (state is CategoryLoaded && state.deletedId != null) {
-          if (_selectedCategory?.id == state.deletedId) {
-            _selectCategory(null);
+          final noteBloc = context.read<NoteBloc>();
+          if (noteBloc.state.selectedCategoryId == state.deletedId) {
+            noteBloc.add(SelectCategory(null));
           }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Category deleted')),
           );
         }
       },
-      builder: (context, state) {
-        if (state is CategoryError) {
+      builder: (context, categoryState) {
+        if (categoryState is CategoryError) {
           return SizedBox(
             height: 40,
             child: Center(
@@ -291,28 +303,35 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
         final categories =
-            state is CategoryLoaded ? state.categories : <Category>[];
+            categoryState is CategoryLoaded ? categoryState.categories : <Category>[];
         return SizedBox(
           height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              _FilterChip(
-                label: 'All Notes',
-                isSelected: _selectedCategory == null,
-                onTap: () => _selectCategory(null),
-              ),
-              ...categories.map((cat) => Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: _FilterChip(
-                      label: cat.name,
-                      isSelected: _selectedCategory?.id == cat.id,
-                      onTap: () => _selectCategory(cat),
-                      onLongPress: () => _showCategoryOptions(cat),
-                    ),
-                  )),
-            ],
+          child: BlocBuilder<NoteBloc, NoteState>(
+            buildWhen: (prev, next) =>
+                prev.selectedCategoryId != next.selectedCategoryId,
+            builder: (context, noteState) {
+              return ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _FilterChip(
+                    label: 'All Notes',
+                    isSelected: noteState.selectedCategoryId == null,
+                    onTap: () => context.read<NoteBloc>().add(SelectCategory(null)),
+                  ),
+                  ...categories.map((cat) => Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: _FilterChip(
+                          label: cat.name,
+                          isSelected: noteState.selectedCategoryId == cat.id,
+                          onTap: () =>
+                              context.read<NoteBloc>().add(SelectCategory(cat.id)),
+                          onLongPress: () => _showCategoryOptions(cat),
+                        ),
+                      )),
+                ],
+              );
+            },
           ),
         );
       },
@@ -389,9 +408,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   createdAt: category.createdAt,
                 );
                 context.read<CategoryBloc>().add(UpdateCategory(updated));
-                if (_selectedCategory?.id == category.id) {
-                  setState(() => _selectedCategory = updated);
-                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Category updated')),
                 );
@@ -432,11 +448,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNotesList() {
     return BlocBuilder<NoteBloc, NoteState>(
       builder: (context, state) {
-        if (state is NoteLoading) {
+        if (state.status == NoteStatus.loading) {
           return const Center(
               child: CircularProgressIndicator(color: AppColors.primary));
         }
-        if (state is NoteError) {
+        if (state.status == NoteStatus.error) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -451,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         }
-        if (state is NoteLoaded) {
+        if (state.status == NoteStatus.loaded) {
           final notes = _searchQuery.isEmpty
               ? state.notes
               : state.notes
@@ -503,7 +519,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 onDismissed: (_) {
                   context.read<NoteBloc>().add(
                         DeleteNote(note.id,
-                            categoryId: _selectedCategory?.id),
+                            categoryId:
+                                context.read<NoteBloc>().state.selectedCategoryId),
                       );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Note deleted')),
@@ -904,46 +921,49 @@ class _RecordingBottomSheet extends StatefulWidget {
 
 class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
   final SpeechService _speechService = getIt<SpeechService>();
-  bool _isRecording = false;
-  int _seconds = 0;
   Timer? _timer;
   Category? _targetCategory;
+  late NoteBloc _noteBloc;
 
   @override
   void initState() {
     super.initState();
     _targetCategory = widget.selectedCategory;
+    _noteBloc = context.read<NoteBloc>();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _speechService.stopListening();
+    if (_noteBloc.state.isRecording) {
+      _noteBloc.add(StopRecording());
+    }
     super.dispose();
   }
 
-  String get _timerDisplay {
-    final h = _seconds ~/ 3600;
-    final m = (_seconds % 3600) ~/ 60;
-    final s = _seconds % 60;
+  String _timerDisplay(int seconds) {
+    final h = seconds ~/ 3600;
+    final m = (seconds % 3600) ~/ 60;
+    final s = seconds % 60;
     return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   void _toggleRecording(BuildContext context) {
-    if (_isRecording) {
+    final noteBloc = context.read<NoteBloc>();
+    if (noteBloc.state.isRecording) {
       _speechService.stopListening();
       _timer?.cancel();
-      setState(() {
-        _isRecording = false;
-        _seconds = 0;
-      });
+      noteBloc.add(StopRecording());
     } else {
-      _timer = Timer.periodic(
-          const Duration(seconds: 1), (_) => setState(() => _seconds++));
-      setState(() => _isRecording = true);
+      noteBloc.add(StartRecording());
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        final current = context.read<NoteBloc>().state.recordingSeconds;
+        context.read<NoteBloc>().add(UpdateRecordingTimer(current + 1));
+      });
 
       if (kTestMode) {
-        final noteBloc = context.read<NoteBloc>();
         final navigator = Navigator.of(context);
         final targetCategory = _targetCategory!;
         Future.delayed(const Duration(seconds: 2), () {
@@ -958,19 +978,13 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             );
             noteBloc.add(CreateNote(note));
             _timer?.cancel();
-            setState(() {
-              _isRecording = false;
-              _seconds = 0;
-            });
+            noteBloc.add(StopRecording());
             widget.onNoteCreated(targetCategory);
             navigator.pop();
           } catch (e) {
             _timer?.cancel();
             if (mounted) {
-              setState(() {
-                _isRecording = false;
-                _seconds = 0;
-              });
+              noteBloc.add(StopRecording());
               ScaffoldMessenger.of(navigator.context).showSnackBar(
                 const SnackBar(content: Text('Failed to save note. Please try again.')),
               );
@@ -991,10 +1005,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             context.read<NoteBloc>().add(CreateNote(note));
             _speechService.stopListening();
             _timer?.cancel();
-            setState(() {
-              _isRecording = false;
-              _seconds = 0;
-            });
+            context.read<NoteBloc>().add(StopRecording());
             widget.onNoteCreated(targetCategory);
             Navigator.pop(context);
           },
@@ -1005,119 +1016,128 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-          24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 40),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
+    return BlocBuilder<NoteBloc, NoteState>(
+      buildWhen: (prev, next) =>
+          prev.isRecording != next.isRecording ||
+          prev.recordingSeconds != next.recordingSeconds,
+      builder: (context, state) {
+        return Container(
+          padding: EdgeInsets.fromLTRB(
+              24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 40),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                text: const TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Recording ',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'Audio',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close, size: 16),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.folder_outlined, color: AppColors.primary, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                _targetCategory?.name ?? '',
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 13,
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 36),
-          _WaveformWidget(isAnimating: _isRecording),
-          const SizedBox(height: 28),
-          Text(
-            _timerDisplay,
-            style: const TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 6,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 36),
-          GestureDetector(
-            onTap: () => _toggleRecording(context),
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: _isRecording ? Colors.red : AppColors.primary,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: (_isRecording ? Colors.red : AppColors.primary)
-                        .withValues(alpha: 0.4),
-                    blurRadius: 24,
-                    spreadRadius: 4,
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Recording ',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Audio',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 16),
+                    ),
                   ),
                 ],
               ),
-              child: Icon(
-                _isRecording ? Icons.stop : Icons.mic,
-                color: Colors.white,
-                size: 36,
+              const SizedBox(height: 16),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.folder_outlined,
+                      color: AppColors.primary, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    _targetCategory?.name ?? '',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 36),
+              _WaveformWidget(isAnimating: state.isRecording),
+              const SizedBox(height: 28),
+              Text(
+                _timerDisplay(state.recordingSeconds),
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w300,
+                  letterSpacing: 6,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 36),
+              GestureDetector(
+                onTap: () => _toggleRecording(context),
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: state.isRecording ? Colors.red : AppColors.primary,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            (state.isRecording ? Colors.red : AppColors.primary)
+                                .withValues(alpha: 0.4),
+                        blurRadius: 24,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    state.isRecording ? Icons.stop : Icons.mic,
+                    color: Colors.white,
+                    size: 36,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

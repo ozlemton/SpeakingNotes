@@ -21,3 +21,17 @@ class DeleteNote extends NoteEvent {
   final String? categoryId;
   DeleteNote(this.id, {this.categoryId});
 }
+
+class SelectCategory extends NoteEvent {
+  final String? categoryId;
+  SelectCategory(this.categoryId);
+}
+
+class StartRecording extends NoteEvent {}
+
+class StopRecording extends NoteEvent {}
+
+class UpdateRecordingTimer extends NoteEvent {
+  final int seconds;
+  UpdateRecordingTimer(this.seconds);
+}

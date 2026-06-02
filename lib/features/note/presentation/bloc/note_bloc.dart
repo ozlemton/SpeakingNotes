@@ -18,23 +18,27 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     required this.getNotesByCategory,
     required this.createNote,
     required this.deleteNote,
-  }) : super(NoteInitial()) {
+  }) : super(const NoteState()) {
     on<LoadAllNotes>(_onLoadAllNotes);
     on<LoadNotes>(_onLoadNotes);
     on<CreateNote>(_onCreateNote);
     on<DeleteNote>(_onDeleteNote);
+    on<SelectCategory>(_onSelectCategory);
+    on<StartRecording>(_onStartRecording);
+    on<StopRecording>(_onStopRecording);
+    on<UpdateRecordingTimer>(_onUpdateRecordingTimer);
   }
 
   Future<void> _onLoadAllNotes(
     LoadAllNotes event,
     Emitter<NoteState> emit,
   ) async {
-    emit(NoteLoading());
+    emit(state.copyWith(status: NoteStatus.loading));
     try {
       final notes = await getAllNotes();
-      emit(NoteLoaded(notes));
+      emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
     } catch (e) {
-      emit(NoteError(e.toString()));
+      emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
   }
 
@@ -42,12 +46,12 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     LoadNotes event,
     Emitter<NoteState> emit,
   ) async {
-    emit(NoteLoading());
+    emit(state.copyWith(status: NoteStatus.loading));
     try {
       final notes = await getNotesByCategory(event.categoryId);
-      emit(NoteLoaded(notes));
+      emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
     } catch (e) {
-      emit(NoteError(e.toString()));
+      emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
   }
 
@@ -55,11 +59,11 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     CreateNote event,
     Emitter<NoteState> emit,
   ) async {
-    emit(NoteLoading());
+    emit(state.copyWith(status: NoteStatus.loading));
     try {
       await createNote(event.note);
     } catch (e) {
-      emit(NoteError(e.toString()));
+      emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
   }
 
@@ -71,13 +75,58 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
       await deleteNote(event.id);
       if (event.categoryId != null) {
         final notes = await getNotesByCategory(event.categoryId!);
-        emit(NoteLoaded(notes));
+        emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
       } else {
         final notes = await getAllNotes();
-        emit(NoteLoaded(notes));
+        emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
       }
     } catch (e) {
-      emit(NoteError(e.toString()));
+      emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
+  }
+
+  Future<void> _onSelectCategory(
+    SelectCategory event,
+    Emitter<NoteState> emit,
+  ) async {
+    final categoryId = event.categoryId;
+    if (categoryId != null) {
+      emit(state.copyWith(
+        selectedCategoryId: categoryId,
+        status: NoteStatus.loading,
+      ));
+      try {
+        final notes = await getNotesByCategory(categoryId);
+        emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
+      } catch (e) {
+        emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
+      }
+    } else {
+      emit(state.copyWith(
+        clearSelectedCategoryId: true,
+        status: NoteStatus.loading,
+      ));
+      try {
+        final notes = await getAllNotes();
+        emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
+      } catch (e) {
+        emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
+      }
+    }
+  }
+
+  void _onStartRecording(StartRecording event, Emitter<NoteState> emit) {
+    emit(state.copyWith(isRecording: true, recordingSeconds: 0));
+  }
+
+  void _onStopRecording(StopRecording event, Emitter<NoteState> emit) {
+    emit(state.copyWith(isRecording: false, recordingSeconds: 0));
+  }
+
+  void _onUpdateRecordingTimer(
+    UpdateRecordingTimer event,
+    Emitter<NoteState> emit,
+  ) {
+    emit(state.copyWith(recordingSeconds: event.seconds));
   }
 }

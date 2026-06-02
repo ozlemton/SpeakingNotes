@@ -1,19 +1,44 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/models/note.dart';
 
+enum NoteStatus { initial, loading, loaded, error }
+
 @immutable
-sealed class NoteState {}
-
-class NoteInitial extends NoteState {}
-
-class NoteLoading extends NoteState {}
-
-class NoteLoaded extends NoteState {
+class NoteState {
+  final NoteStatus status;
   final List<Note> notes;
-  NoteLoaded(this.notes);
-}
+  final String? error;
+  final String? selectedCategoryId;
+  final bool isRecording;
+  final int recordingSeconds;
 
-class NoteError extends NoteState {
-  final String message;
-  NoteError(this.message);
+  const NoteState({
+    this.status = NoteStatus.initial,
+    this.notes = const [],
+    this.error,
+    this.selectedCategoryId,
+    this.isRecording = false,
+    this.recordingSeconds = 0,
+  });
+
+  NoteState copyWith({
+    NoteStatus? status,
+    List<Note>? notes,
+    String? error,
+    String? selectedCategoryId,
+    bool clearSelectedCategoryId = false,
+    bool? isRecording,
+    int? recordingSeconds,
+  }) {
+    return NoteState(
+      status: status ?? this.status,
+      notes: notes ?? this.notes,
+      error: error ?? this.error,
+      selectedCategoryId: clearSelectedCategoryId
+          ? null
+          : (selectedCategoryId ?? this.selectedCategoryId),
+      isRecording: isRecording ?? this.isRecording,
+      recordingSeconds: recordingSeconds ?? this.recordingSeconds,
+    );
+  }
 }
