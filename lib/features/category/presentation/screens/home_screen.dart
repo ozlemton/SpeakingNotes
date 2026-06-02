@@ -845,11 +845,33 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                           title: Text(cat.name,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w500)),
-                          trailing: Radio<Category?>(
-                            value: cat,
-                            groupValue: _selected,
-                            activeColor: AppColors.primary,
-                            onChanged: (v) => setState(() => _selected = v),
+                          trailing: GestureDetector(
+                            onTap: () => setState(() => _selected = cat),
+                            child: Container(
+                              width: 22.r,
+                              height: 22.r,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _selected == cat
+                                      ? AppColors.primary
+                                      : AppColors.textSecondary,
+                                  width: 2,
+                                ),
+                              ),
+                              child: _selected == cat
+                                  ? Center(
+                                      child: Container(
+                                        width: 12.r,
+                                        height: 12.r,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
                           ),
                           onTap: () => setState(() => _selected = cat),
                         ))
