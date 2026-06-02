@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -11,68 +13,57 @@ import '../../../note/presentation/bloc/note_event.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (_) => false,
-          );
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
         backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: AppColors.background,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new,
-                color: AppColors.textPrimary, size: 20),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            AppLocalizations.of(context)!.profile,
-            style: AppTypography.heading3,
-          ),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary, size: 20),
+          onPressed: () => context.pop(),
         ),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is! AuthAuthenticated) return const SizedBox();
-            final user = state.user;
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  _Avatar(username: user.username),
-                  const SizedBox(height: 16),
-                  Text(user.username, style: AppTypography.heading2),
-                  const SizedBox(height: 4),
-                  Text(
-                    user.email,
-                    style: AppTypography.body2
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 36),
-                  _SettingsCard(
-                    children: [
-                      _LanguageSelector(currentLanguage: user.language),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _LogoutButton(userId: user.id),
-                ],
-              ),
-            );
-          },
+        title: Text(
+          AppLocalizations.of(context)!.profile,
+          style: AppTypography.heading3,
         ),
+      ),
+      body: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is! AuthAuthenticated) return const SizedBox();
+          final user = state.user;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                _Avatar(username: user.username),
+                const SizedBox(height: 16),
+                Text(user.username, style: AppTypography.heading2),
+                const SizedBox(height: 4),
+                Text(
+                  user.email,
+                  style: AppTypography.body2
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 36),
+                _SettingsCard(
+                  children: [
+                    _LanguageSelector(currentLanguage: user.language),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _LogoutButton(userId: user.id),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

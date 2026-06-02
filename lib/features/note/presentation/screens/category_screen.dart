@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
@@ -54,7 +55,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () => context.pop(),
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(

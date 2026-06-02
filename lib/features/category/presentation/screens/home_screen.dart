@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/di/injection.dart';
@@ -11,7 +12,6 @@ import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
-import '../../../auth/presentation/screens/profile_screen.dart';
 import '../../../note/domain/models/note.dart';
 import '../../../note/presentation/bloc/note_bloc.dart';
 import '../../../note/presentation/bloc/note_event.dart';
@@ -212,9 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              ),
+              onTap: () => context.push('/profile'),
               child: Container(
                 width: 38,
                 height: 38,

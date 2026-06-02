@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/di/injection.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
-import '../../../category/presentation/screens/home_screen.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,13 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          setCurrentUserId(state.user.id);
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-            (_) => false,
-          );
-        } else if (state is AuthError) {
+        if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -195,9 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
         GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const SignupScreen()),
-          ),
+          onTap: () => context.push('/signup'),
           child: Text(
             'Sign Up',
             style: AppTypography.body2.copyWith(
