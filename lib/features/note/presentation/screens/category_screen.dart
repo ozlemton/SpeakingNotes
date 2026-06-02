@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
@@ -57,13 +58,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
         leading: GestureDetector(
           onTap: () => context.pop(),
           child: Container(
-            margin: const EdgeInsets.all(8),
+            margin: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
               color: AppColors.background,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
-            child: const Icon(Icons.arrow_back_ios_new,
-                size: 18, color: AppColors.textPrimary),
+            child: Icon(Icons.arrow_back_ios_new,
+                size: 18.r, color: AppColors.textPrimary),
           ),
         ),
         title: Text(widget.category.name, style: AppTypography.heading2),
@@ -79,8 +80,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                  const SizedBox(height: 12),
+                  Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
+                  SizedBox(height: 12.h),
                   Text(
                     'Something went wrong. Please try again.',
                     style: AppTypography.body2
@@ -96,8 +97,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.mic_none, size: 72, color: Colors.grey[300]),
-                    const SizedBox(height: 16),
+                    Icon(Icons.mic_none, size: 72.r, color: AppColors.disabled),
+                    SizedBox(height: 16.h),
                     Text(
                       'No notes yet. Tap the mic to record.',
                       style: AppTypography.body2
@@ -108,7 +109,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               );
             }
             return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 100.h),
               itemCount: state.notes.length,
               itemBuilder: (_, i) => _NoteCard(note: state.notes[i]),
             );
@@ -138,14 +139,14 @@ class _NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -154,16 +155,15 @@ class _NoteCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 46.r,
+            height: 46.r,
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            child: const Icon(Icons.description,
-                color: AppColors.primary, size: 22),
+            child: Icon(Icons.description, color: AppColors.primary, size: 22.r),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +175,7 @@ class _NoteCard extends StatelessWidget {
                   style: AppTypography.body2
                       .copyWith(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(_formattedDate, style: AppTypography.caption),
               ],
             ),
@@ -301,33 +301,33 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
       builder: (context, state) {
         return Container(
           padding: EdgeInsets.fromLTRB(
-              24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 40),
-          decoration: const BoxDecoration(
+              24.w, 24.h, 24.w, MediaQuery.of(context).viewInsets.bottom + 40.h),
+          decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 40,
-                height: 4,
+                width: 40.w,
+                height: 4.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  color: AppColors.disabled,
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       children: [
                         TextSpan(
                           text: 'Recording ',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
                           ),
@@ -335,7 +335,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                         TextSpan(
                           text: 'Audio',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -346,35 +346,35 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                      width: 32.r,
+                      height: 32.r,
+                      decoration: const BoxDecoration(
+                        color: AppColors.background,
                         shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.close, size: 16),
+                        ),
+                      child: Icon(Icons.close, size: 16.r),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               _WaveformWidget(isAnimating: state.isRecording),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               Text(
                 _timerDisplay(state.recordingSeconds),
-                style: const TextStyle(
-                  fontSize: 32,
+                style: TextStyle(
+                  fontSize: 32.sp,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 4,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               GestureDetector(
                 onTap: () => _toggleRecording(context),
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: 80.r,
+                  height: 80.r,
                   decoration: BoxDecoration(
                     color: state.isRecording ? AppColors.error : AppColors.primary,
                     shape: BoxShape.circle,
@@ -391,7 +391,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                   child: Icon(
                     state.isRecording ? Icons.stop : Icons.mic,
                     color: AppColors.white,
-                    size: 36,
+                    size: 36.r,
                   ),
                 ),
               ),
@@ -455,19 +455,19 @@ class _WaveformWidgetState extends State<_WaveformWidget>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 72,
+      height: 72.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _bars
             .map((h) => AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  width: 4,
-                  height: 8 + h * 60,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  width: 4.w,
+                  height: (8 + h * 60).h,
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
                   decoration: BoxDecoration(
                     color:
                         AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(3.r),
                   ),
                 ))
             .toList(),

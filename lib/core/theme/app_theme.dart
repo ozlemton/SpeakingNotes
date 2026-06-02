@@ -13,11 +13,11 @@ abstract final class AppTheme {
         ),
         scaffoldBackgroundColor: AppColors.background,
         primaryColor: AppColors.primary,
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           backgroundColor: AppColors.white,
           elevation: 0,
           titleTextStyle: AppTypography.heading3,
-          iconTheme: IconThemeData(color: AppColors.textPrimary),
+          iconTheme: const IconThemeData(color: AppColors.textPrimary),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(

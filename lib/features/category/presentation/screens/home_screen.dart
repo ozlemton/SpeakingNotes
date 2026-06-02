@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -167,17 +168,17 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
               child: _buildHeader(),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: _buildSearchBar(),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             _buildFilterChips(),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Expanded(child: _buildNotesList()),
           ],
         ),
@@ -193,46 +194,46 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('SpeakingNotes', style: AppTypography.heading1),
+        Text('SpeakingNotes', style: AppTypography.heading1),
         Row(
           children: [
             GestureDetector(
               onTap: _showCategorySheet,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.folder_outlined, color: AppColors.primary, size: 18),
-                    SizedBox(width: 6),
+                    Icon(Icons.folder_outlined,
+                        color: AppColors.primary, size: 18.r),
+                    SizedBox(width: 6.w),
                     Text(
                       'Category',
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             GestureDetector(
               onTap: () => context.push('/profile'),
               child: Container(
-                width: 38,
-                height: 38,
+                width: 38.r,
+                height: 38.r,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: const Icon(Icons.person_outline,
-                    color: AppColors.primary, size: 20),
+                child: Icon(Icons.person_outline,
+                    color: AppColors.primary, size: 20.r),
               ),
             ),
           ],
@@ -244,11 +245,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -259,19 +260,19 @@ class _HomeScreenState extends State<HomeScreen> {
         onChanged: (v) => setState(() => _searchQuery = v),
         decoration: InputDecoration(
           hintText: 'Search notes...',
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 20),
+          hintStyle: TextStyle(color: AppColors.iconSecondary, fontSize: 14.sp),
+          prefixIcon: Icon(Icons.search, color: AppColors.iconSecondary, size: 20.r),
           suffixIcon: _searchQuery.isNotEmpty
               ? GestureDetector(
                   onTap: () {
                     _searchController.clear();
                     setState(() => _searchQuery = '');
                   },
-                  child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                  child: Icon(Icons.close, color: AppColors.iconSecondary, size: 20.r),
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          contentPadding: EdgeInsets.symmetric(vertical: 14.h),
         ),
       ),
     );
@@ -293,11 +294,11 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, categoryState) {
         if (categoryState is CategoryError) {
           return SizedBox(
-            height: 40,
+            height: 40.h,
             child: Center(
               child: Text(
                 'Failed to load categories',
-                style: TextStyle(color: Colors.red[400], fontSize: 12),
+                style: TextStyle(color: AppColors.error, fontSize: 12.sp),
               ),
             ),
           );
@@ -305,14 +306,14 @@ class _HomeScreenState extends State<HomeScreen> {
         final categories =
             categoryState is CategoryLoaded ? categoryState.categories : <Category>[];
         return SizedBox(
-          height: 40,
+          height: 40.h,
           child: BlocBuilder<NoteBloc, NoteState>(
             buildWhen: (prev, next) =>
                 prev.selectedCategoryId != next.selectedCategoryId,
             builder: (context, noteState) {
               return ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 children: [
                   _FilterChip(
                     label: 'All Notes',
@@ -320,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => context.read<NoteBloc>().add(SelectCategory(null)),
                   ),
                   ...categories.map((cat) => Padding(
-                        padding: const EdgeInsets.only(left: 8),
+                        padding: EdgeInsets.only(left: 8.w),
                         child: _FilterChip(
                           label: cat.name,
                           isSelected: noteState.selectedCategoryId == cat.id,
@@ -341,24 +342,24 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showCategoryOptions(Category category) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                color: AppColors.disabled,
+                borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             ListTile(
               leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
               title: const Text('Edit'),
@@ -368,14 +369,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete_outline, color: Colors.red[400]),
-              title: Text('Delete', style: TextStyle(color: Colors.red[400])),
+              leading: const Icon(Icons.delete_outline, color: AppColors.error),
+              title: const Text('Delete', style: TextStyle(color: AppColors.error)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteCategoryDialog(category);
               },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
           ],
         ),
       ),
@@ -438,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(ctx);
               context.read<CategoryBloc>().add(DeleteCategory(category.id));
             },
-            child: Text('Delete', style: TextStyle(color: Colors.red[400])),
+            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -457,11 +458,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                const SizedBox(height: 12),
-                const Text(
+                Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
+                SizedBox(height: 12.h),
+                Text(
                   'Something went wrong. Please try again.',
-                  style: TextStyle(color: Colors.black54, fontSize: 15),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 15.sp),
                 ),
               ],
             ),
@@ -483,22 +484,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(
                     isSearching ? Icons.search_off : Icons.mic_none,
-                    size: 72,
-                    color: Colors.grey[300],
+                    size: 72.r,
+                    color: AppColors.disabled,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Text(
                     isSearching
                         ? 'No notes found for your search.'
                         : 'No notes yet. Tap the mic to record.',
-                    style: TextStyle(color: Colors.grey[400], fontSize: 15),
+                    style: TextStyle(color: AppColors.disabled, fontSize: 15.sp),
                   ),
                 ],
               ),
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 100.h),
             itemCount: notes.length,
             itemBuilder: (ctx, i) {
               final note = notes[i];
@@ -506,15 +507,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 key: ValueKey(note.id),
                 direction: DismissDirection.endToStart,
                 background: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(bottom: 12.h),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(16),
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  child: const Icon(Icons.delete_outline,
-                      color: Colors.white, size: 26),
+                  padding: EdgeInsets.only(right: 20.w),
+                  child: Icon(Icons.delete_outline, color: AppColors.white, size: 26.r),
                 ),
                 onDismissed: (_) {
                   context.read<NoteBloc>().add(
@@ -589,14 +589,14 @@ class _FilterChipState extends State<_FilterChip> {
           duration: const Duration(milliseconds: 120),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 9.h),
             decoration: BoxDecoration(
               color: _pressed
                   ? (widget.isSelected
                       ? AppColors.primary.withValues(alpha: 0.85)
-                      : Colors.grey[100])
-                  : (widget.isSelected ? AppColors.primary : Colors.white),
-              borderRadius: BorderRadius.circular(20),
+                      : AppColors.background)
+                  : (widget.isSelected ? AppColors.primary : AppColors.white),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: widget.isSelected
                   ? [
                       BoxShadow(
@@ -608,7 +608,7 @@ class _FilterChipState extends State<_FilterChip> {
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withValues(
+                        color: AppColors.shadow.withValues(
                             alpha: _pressed ? 0.08 : 0.05),
                         blurRadius: _pressed ? 6 : 4,
                         spreadRadius: _pressed ? 1 : 0,
@@ -618,10 +618,10 @@ class _FilterChipState extends State<_FilterChip> {
             child: Text(
               widget.label,
               style: TextStyle(
-                color: widget.isSelected ? Colors.white : Colors.grey[600],
+                color: widget.isSelected ? AppColors.white : AppColors.textSecondary,
                 fontWeight:
                     widget.isSelected ? FontWeight.w600 : FontWeight.normal,
-                fontSize: 13,
+                fontSize: 13.sp,
               ),
             ),
           ),
@@ -645,14 +645,14 @@ class _NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -661,15 +661,15 @@ class _NoteCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 46.r,
+            height: 46.r,
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            child: const Icon(Icons.description, color: AppColors.primary, size: 22),
+            child: Icon(Icons.description, color: AppColors.primary, size: 22.r),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -678,16 +678,16 @@ class _NoteCard extends StatelessWidget {
                   note.content.length > 45
                       ? '${note.content.substring(0, 45)}...'
                       : note.content,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.black87,
+                    fontSize: 14.sp,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   _formattedDate,
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  style: TextStyle(color: AppColors.iconSecondary, fontSize: 12.sp),
                 ),
               ],
             ),
@@ -767,31 +767,31 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-          20, 24, 20, MediaQuery.of(context).viewInsets.bottom + 32),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          20.w, 24.h, 20.w, MediaQuery.of(context).viewInsets.bottom + 32.h),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
-            height: 4,
+            width: 40.w,
+            height: 4.h,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
+              color: AppColors.disabled,
+              borderRadius: BorderRadius.circular(2.r),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Select Category',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -799,31 +799,31 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                  width: 32.r,
+                  height: 32.r,
+                  decoration: const BoxDecoration(
+                    color: AppColors.background,
                     shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close, size: 16),
+                    ),
+                  child: Icon(Icons.close, size: 16.r),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Align(
+          SizedBox(height: 20.h),
+          Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'All Categories',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.black54,
-                fontSize: 13,
+                color: AppColors.textSecondary,
+                fontSize: 13.sp,
                 letterSpacing: 0.5,
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
               final categories =
@@ -833,14 +833,14 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                     .map((cat) => ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: Container(
-                            width: 38,
-                            height: 38,
+                            width: 38.r,
+                            height: 38.r,
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
-                            child: const Icon(Icons.folder,
-                                color: AppColors.primary, size: 18),
+                            child: Icon(Icons.folder,
+                                color: AppColors.primary, size: 18.r),
                           ),
                           title: Text(cat.name,
                               style: const TextStyle(
@@ -857,17 +857,17 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
               );
             },
           ),
-          const Divider(height: 24),
+          Divider(height: 24.h),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Container(
-              width: 38,
-              height: 38,
+              width: 38.r,
+              height: 38.r,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 20),
+              child: Icon(Icons.add, color: AppColors.white, size: 20.r),
             ),
             title: const Text(
               'Create New Category',
@@ -875,26 +875,26 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
             ),
             onTap: _showCreateDialog,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: 52.h,
             child: ElevatedButton(
               onPressed: _selected == null
                   ? null
                   : () => widget.onSelect(_selected),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                disabledBackgroundColor: Colors.grey[200],
+                disabledBackgroundColor: AppColors.divider,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Select',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+                  color: AppColors.white,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1023,33 +1023,33 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
       builder: (context, state) {
         return Container(
           padding: EdgeInsets.fromLTRB(
-              24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 40),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              24.w, 24.h, 24.w, MediaQuery.of(context).viewInsets.bottom + 40.h),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 40,
-                height: 4,
+                width: 40.w,
+                height: 4.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  color: AppColors.disabled,
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       children: [
                         TextSpan(
                           text: 'Recording ',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
                           ),
@@ -1057,9 +1057,9 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                         TextSpan(
                           text: 'Audio',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -1068,59 +1068,59 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                      width: 32.r,
+                      height: 32.r,
+                      decoration: const BoxDecoration(
+                        color: AppColors.background,
                         shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.close, size: 16),
+                        ),
+                      child: Icon(Icons.close, size: 16.r),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.folder_outlined,
-                      color: AppColors.primary, size: 16),
-                  const SizedBox(width: 6),
+                  Icon(Icons.folder_outlined,
+                      color: AppColors.primary, size: 16.r),
+                  SizedBox(width: 6.w),
                   Text(
                     _targetCategory?.name ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w500,
-                      fontSize: 13,
+                      fontSize: 13.sp,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 36),
+              SizedBox(height: 36.h),
               _WaveformWidget(isAnimating: state.isRecording),
-              const SizedBox(height: 28),
+              SizedBox(height: 28.h),
               Text(
                 _timerDisplay(state.recordingSeconds),
-                style: const TextStyle(
-                  fontSize: 36,
+                style: TextStyle(
+                  fontSize: 36.sp,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 6,
-                  color: Colors.black87,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 36),
+              SizedBox(height: 36.h),
               GestureDetector(
                 onTap: () => _toggleRecording(context),
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: 80.r,
+                  height: 80.r,
                   decoration: BoxDecoration(
-                    color: state.isRecording ? Colors.red : AppColors.primary,
+                    color: state.isRecording ? AppColors.error : AppColors.primary,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color:
-                            (state.isRecording ? Colors.red : AppColors.primary)
+                            (state.isRecording ? AppColors.error : AppColors.primary)
                                 .withValues(alpha: 0.4),
                         blurRadius: 24,
                         spreadRadius: 4,
@@ -1129,8 +1129,8 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                   ),
                   child: Icon(
                     state.isRecording ? Icons.stop : Icons.mic,
-                    color: Colors.white,
-                    size: 36,
+                    color: AppColors.white,
+                    size: 36.r,
                   ),
                 ),
               ),
@@ -1193,18 +1193,18 @@ class _WaveformWidgetState extends State<_WaveformWidget>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 72,
+      height: 72.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _bars
             .map((h) => AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  width: 4,
-                  height: 8 + h * 60,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  width: 4.w,
+                  height: (8 + h * 60).h,
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(3.r),
                   ),
                 ))
             .toList(),

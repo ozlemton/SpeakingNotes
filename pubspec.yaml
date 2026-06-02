@@ -28,6 +28,7 @@ dependencies:
   firebase_auth: ^5.5.4
   go_router: ^14.8.1
   shared_preferences: ^2.3.3
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

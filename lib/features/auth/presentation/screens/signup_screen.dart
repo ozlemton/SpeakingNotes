@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theme/app_colors.dart';
@@ -65,27 +66,27 @@ class _SignupScreenState extends State<SignupScreen> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: EdgeInsets.symmetric(horizontal: 28.w),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                     _buildLogo(),
-                    const SizedBox(height: 36),
+                    SizedBox(height: 36.h),
                     _buildUsernameField(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     _buildEmailField(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     _buildPasswordField(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     _buildLanguageDropdown(),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28.h),
                     _buildSignUpButton(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
                     _buildLoginLink(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                   ],
                 ),
               ),
@@ -100,11 +101,11 @@ class _SignupScreenState extends State<SignupScreen> {
     return Column(
       children: [
         Container(
-          width: 72,
-          height: 72,
+          width: 72.r,
+          height: 72.r,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.35),
@@ -113,11 +114,11 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ],
           ),
-          child: const Icon(Icons.mic, color: AppColors.white, size: 36),
+          child: Icon(Icons.mic, color: AppColors.white, size: 36.r),
         ),
-        const SizedBox(height: 16),
-        const Text('SpeakingNotes', style: AppTypography.heading1),
-        const SizedBox(height: 6),
+        SizedBox(height: 16.h),
+        Text('SpeakingNotes', style: AppTypography.heading1),
+        SizedBox(height: 6.h),
         Text(
           'Create your account',
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
@@ -165,8 +166,8 @@ class _SignupScreenState extends State<SignupScreen> {
         suffix: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
-            size: 20,
+            color: AppColors.iconSecondary,
+            size: 20.r,
           ),
           onPressed: () =>
               setState(() => _obscurePassword = !_obscurePassword),
@@ -182,25 +183,23 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _buildLanguageDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: EdgeInsets.symmetric(horizontal: 14.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: AppColors.divider),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedLanguage,
-          icon: const Icon(Icons.keyboard_arrow_down,
-              color: Colors.grey, size: 20),
+          icon: Icon(Icons.keyboard_arrow_down, color: AppColors.iconSecondary, size: 20.r),
           items: _languages
               .map((lang) => DropdownMenuItem(
                     value: lang.$1,
                     child: Row(
                       children: [
-                        const Icon(Icons.language,
-                            color: Colors.grey, size: 20),
-                        const SizedBox(width: 10),
+                        Icon(Icons.language, color: AppColors.iconSecondary, size: 20.r),
+                        SizedBox(width: 10.w),
                         Text(lang.$2, style: AppTypography.body2),
                       ],
                     ),
@@ -219,17 +218,17 @@ class _SignupScreenState extends State<SignupScreen> {
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return SizedBox(
-          height: 52,
+          height: 52.h,
           child: ElevatedButton(
             onPressed: isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
             ),
             child: isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
+                ? SizedBox(
+                    width: 22.r,
+                    height: 22.r,
+                    child: const CircularProgressIndicator(
                       color: AppColors.white,
                       strokeWidth: 2.5,
                     ),
@@ -267,7 +266,7 @@ class _SignupScreenState extends State<SignupScreen> {
       {Widget? suffix}) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: Colors.grey, size: 20),
+      prefixIcon: Icon(icon, color: AppColors.iconSecondary, size: 20.r),
       suffixIcon: suffix,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
@@ -25,8 +26,8 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: AppColors.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary, size: 20.r),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -39,26 +40,26 @@ class ProfileScreen extends StatelessWidget {
           if (state is! AuthAuthenticated) return const SizedBox();
           final user = state.user;
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.w),
             child: Column(
               children: [
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _Avatar(username: user.username),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Text(user.username, style: AppTypography.heading2),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   user.email,
                   style: AppTypography.body2
                       .copyWith(color: AppColors.textSecondary),
                 ),
-                const SizedBox(height: 36),
+                SizedBox(height: 36.h),
                 _SettingsCard(
                   children: [
                     _LanguageSelector(currentLanguage: user.language),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 _LogoutButton(userId: user.id),
               ],
             ),
@@ -84,8 +85,8 @@ class _Avatar extends StatelessWidget {
             .join()
         : '?';
     return Container(
-      width: 88,
-      height: 88,
+      width: 88.r,
+      height: 88.r,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppColors.primary,
@@ -100,9 +101,9 @@ class _Avatar extends StatelessWidget {
       child: Center(
         child: Text(
           initials,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.white,
-            fontSize: 30,
+            fontSize: 30.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -120,10 +121,10 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -142,11 +143,11 @@ class _LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         children: [
-          const Icon(Icons.language, color: AppColors.primary, size: 22),
-          const SizedBox(width: 14),
+          Icon(Icons.language, color: AppColors.primary, size: 22.r),
+          SizedBox(width: 14.w),
           Expanded(
             child: Text(l10n.language, style: AppTypography.body1),
           ),
@@ -167,7 +168,7 @@ class _LanguageToggle extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -206,10 +207,10 @@ class _LangButton extends StatelessWidget {
           : () => context.read<AuthBloc>().add(UpdateLanguage(code)),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: Text(
           label,
@@ -232,16 +233,16 @@ class _LogoutButton extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 52.h,
       child: ElevatedButton.icon(
         onPressed: () => _confirmLogout(context),
-        icon: const Icon(Icons.logout, color: AppColors.white, size: 20),
+        icon: Icon(Icons.logout, color: AppColors.white, size: 20.r),
         label: Text(l10n.logout),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.error,
           foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           elevation: 0,
         ),
@@ -254,8 +255,7 @@ class _LogoutButton extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         title: Text(l10n.logout),
         content: Text(
           'Are you sure you want to logout?',

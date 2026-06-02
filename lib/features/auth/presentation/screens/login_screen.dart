@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theme/app_colors.dart';
@@ -55,23 +56,23 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: EdgeInsets.symmetric(horizontal: 28.w),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                     _buildLogo(),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48.h),
                     _buildEmailField(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     _buildPasswordField(),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28.h),
                     _buildLoginButton(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
                     _buildSignUpLink(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                   ],
                 ),
               ),
@@ -86,11 +87,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         Container(
-          width: 72,
-          height: 72,
+          width: 72.r,
+          height: 72.r,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.35),
@@ -99,11 +100,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-          child: const Icon(Icons.mic, color: AppColors.white, size: 36),
+          child: Icon(Icons.mic, color: AppColors.white, size: 36.r),
         ),
-        const SizedBox(height: 16),
-        const Text('SpeakingNotes', style: AppTypography.heading1),
-        const SizedBox(height: 6),
+        SizedBox(height: 16.h),
+        Text('SpeakingNotes', style: AppTypography.heading1),
+        SizedBox(height: 6.h),
         Text(
           'Welcome back',
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
@@ -138,8 +139,8 @@ class _LoginScreenState extends State<LoginScreen> {
         suffix: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
-            size: 20,
+            color: AppColors.iconSecondary,
+            size: 20.r,
           ),
           onPressed: () =>
               setState(() => _obscurePassword = !_obscurePassword),
@@ -157,17 +158,17 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return SizedBox(
-          height: 52,
+          height: 52.h,
           child: ElevatedButton(
             onPressed: isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
             ),
             child: isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
+                ? SizedBox(
+                    width: 22.r,
+                    height: 22.r,
+                    child: const CircularProgressIndicator(
                       color: AppColors.white,
                       strokeWidth: 2.5,
                     ),
@@ -205,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
       {Widget? suffix}) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: Colors.grey, size: 20),
+      prefixIcon: Icon(icon, color: AppColors.iconSecondary, size: 20.r),
       suffixIcon: suffix,
     );
   }

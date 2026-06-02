@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -89,14 +90,19 @@ class MyApp extends StatelessWidget {
             final language = authState is AuthAuthenticated
                 ? authState.user.language
                 : initialLanguage;
-            return MaterialApp.router(
-              title: 'Speaking Notes',
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: Locale(language),
-              theme: AppTheme.lightTheme,
-              routerConfig: router,
+            return ScreenUtilInit(
+              designSize: const Size(390, 844),
+              minTextAdapt: true,
+              splitScreenMode: true,
+              builder: (context, child) => MaterialApp.router(
+                title: 'Speaking Notes',
+                debugShowCheckedModeBanner: false,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: Locale(language),
+                theme: AppTheme.lightTheme,
+                routerConfig: router,
+              ),
             );
           },
         ),
