@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:speaking_notes/features/category/domain/models/category.dart';
 
 void main() {
-  final createdAt = DateTime(2024, 1, 1);
+  final createdAt = DateTime(2024);
 
   final category = Category(
     id: 'cat-1',
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('toJson omits userId when null', () {
-      final noUser = Category(id: 'c', name: 'N', userId: null, createdAt: createdAt);
+      final noUser = Category(id: 'c', name: 'N', createdAt: createdAt);
       expect(noUser.toJson().containsKey('userId'), isFalse);
     });
 

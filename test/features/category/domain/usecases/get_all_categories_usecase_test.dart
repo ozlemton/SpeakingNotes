@@ -18,8 +18,8 @@ void main() {
   });
 
   final categories = [
-    Category(id: '1', name: 'Work', userId: null, createdAt: DateTime(2024)),
-    Category(id: '2', name: 'Personal', userId: null, createdAt: DateTime(2024)),
+    Category(id: '1', name: 'Work', createdAt: DateTime(2024)),
+    Category(id: '2', name: 'Personal', createdAt: DateTime(2024)),
   ];
 
   test('returns list from repository', () async {

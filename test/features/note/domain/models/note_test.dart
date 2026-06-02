@@ -23,7 +23,7 @@ void main() {
     });
 
     test('toJson omits userId when null', () {
-      final noUser = Note(id: 'n', categoryId: 'c', userId: null, content: 'x', createdAt: createdAt);
+      final noUser = Note(id: 'n', categoryId: 'c', content: 'x', createdAt: createdAt);
       expect(noUser.toJson().containsKey('userId'), isFalse);
     });
 

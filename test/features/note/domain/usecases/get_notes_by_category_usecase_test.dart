@@ -18,8 +18,8 @@ void main() {
   });
 
   final notes = [
-    Note(id: 'n1', categoryId: 'cat-1', userId: null, content: 'Note 1', createdAt: DateTime(2024)),
-    Note(id: 'n2', categoryId: 'cat-1', userId: null, content: 'Note 2', createdAt: DateTime(2024)),
+    Note(id: 'n1', categoryId: 'cat-1', content: 'Note 1', createdAt: DateTime(2024)),
+    Note(id: 'n2', categoryId: 'cat-1', content: 'Note 2', createdAt: DateTime(2024)),
   ];
 
   test('returns notes for given categoryId', () async {
