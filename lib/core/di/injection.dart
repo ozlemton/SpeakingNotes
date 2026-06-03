@@ -41,7 +41,7 @@ Future<void> setupDependencies() async {
   try {
     await speechService.initialize();
   } catch (e) {
-    debugPrint('SpeechService initialization failed: $e');
+    if (kDebugMode) debugPrint('SpeechService initialization failed: $e');
   }
   getIt.registerSingleton<SpeechService>(speechService);
 

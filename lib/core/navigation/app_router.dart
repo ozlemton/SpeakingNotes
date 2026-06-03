@@ -27,26 +27,16 @@ abstract final class AppRouter {
       redirect: (context, state) {
         final authState = notifier.authState;
         final path = state.uri.path;
-        debugPrint('[AppRouter] redirect: path=$path authState=${authState.runtimeType}');
 
         if (authState is AuthLoading || authState is AuthInitial) {
-          final dest = path == '/loading' ? null : '/loading';
-          debugPrint('[AppRouter] redirect: auth pending → $dest');
-          return dest;
+          return path == '/loading' ? null : '/loading';
         }
 
         final isAuthenticated = authState is AuthAuthenticated;
         final isPublic = path == '/login' || path == '/signup';
 
-        if (!isAuthenticated && !isPublic) {
-          debugPrint('[AppRouter] redirect: unauthenticated on protected route → /login');
-          return '/login';
-        }
-        if (isAuthenticated && (isPublic || path == '/loading')) {
-          debugPrint('[AppRouter] redirect: authenticated on auth route → /home');
-          return '/home';
-        }
-        debugPrint('[AppRouter] redirect: no redirect needed');
+        if (!isAuthenticated && !isPublic) return '/login';
+        if (isAuthenticated && (isPublic || path == '/loading')) return '/home';
         return null;
       },
       routes: [

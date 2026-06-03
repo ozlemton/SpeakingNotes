@@ -78,14 +78,11 @@ class MyApp extends StatelessWidget {
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            debugPrint('[Auth] Authenticated userId=${state.user.id}');
             setCurrentUserId(state.user.id);
-            debugPrint('[Auth] setCurrentUserId called — loading from local DB');
             getIt<CategoryBloc>().add(LoadCategories());
             getIt<NoteBloc>().add(LoadAllNotes());
             unawaited(
               getIt<SyncService>().syncAll().then((_) {
-                debugPrint('[Auth] syncAll done — reloading BLoCs from local DB');
                 getIt<CategoryBloc>().add(LoadCategories());
                 getIt<NoteBloc>().add(LoadAllNotes());
               }),

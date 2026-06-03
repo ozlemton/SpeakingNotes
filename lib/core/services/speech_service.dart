@@ -23,13 +23,14 @@ class SpeechService {
         onStatus: _onStatus,
       );
     } catch (e) {
-      debugPrint('SpeechService.initialize failed: $e');
+      if (kDebugMode) debugPrint('SpeechService.initialize failed: $e');
       _available = false;
     }
     _initialized = true;
   }
 
   void _onStatus(String status) {
+    debugPrint('[SpeechService] onStatus: $status');
     if ((status == 'done' || status == 'notListening') &&
         _onResult != null &&
         _available) {
@@ -38,6 +39,7 @@ class SpeechService {
   }
 
   Future<void> startListening({required Function(String) onResult}) async {
+    debugPrint('[SpeechService] startListening called');
     if (!_initialized) {
       await initialize();
     }
@@ -50,13 +52,14 @@ class SpeechService {
     try {
       _speech.listen(
         onResult: (result) {
+          debugPrint('[SpeechService] onResult: "${result.recognizedWords}" final=${result.finalResult}');
           if (result.finalResult) {
             _onResult?.call(result.recognizedWords);
           }
         },
       );
     } catch (e) {
-      debugPrint('SpeechService.listen failed: $e');
+      if (kDebugMode) debugPrint('SpeechService.listen failed: $e');
     }
   }
 
@@ -65,7 +68,7 @@ class SpeechService {
     try {
       await _speech.stop();
     } catch (e) {
-      debugPrint('SpeechService.stop failed: $e');
+      if (kDebugMode) debugPrint('SpeechService.stop failed: $e');
     }
   }
 

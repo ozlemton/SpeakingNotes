@@ -104,6 +104,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRecordingSheet() {
+    if (!getIt<SpeechService>().isAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.microphonePermissionRequired),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
     final noteBloc = context.read<NoteBloc>();
     final categoryState = context.read<CategoryBloc>().state;
     final selectedId = noteBloc.state.selectedCategoryId;
@@ -967,10 +976,12 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
   void _toggleRecording(BuildContext context) {
     final noteBloc = context.read<NoteBloc>();
     if (noteBloc.state.isRecording) {
+      debugPrint('[HomeScreen] mic button pressed — stopping recording');
       _speechService.stopListening();
       _timer?.cancel();
       noteBloc.add(StopRecording());
     } else {
+      debugPrint('[HomeScreen] mic button pressed — starting recording, category=${_targetCategory?.name}');
       noteBloc.add(StartRecording());
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
@@ -985,12 +996,14 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
           if (!mounted) return;
           try {
             final text = _speechService.generateMockText();
+            debugPrint('[HomeScreen] mock speech result received: "$text"');
             final note = Note(
               id: const Uuid().v4(),
               categoryId: targetCategory.id,
               content: text,
               createdAt: DateTime.now(),
             );
+            debugPrint('[HomeScreen] dispatching CreateNote with content: "$text"');
             noteBloc.add(CreateNote(note));
             _timer?.cancel();
             noteBloc.add(StopRecording());
@@ -1010,6 +1023,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         final targetCategory = _targetCategory!;
         _speechService.startListening(
           onResult: (text) {
+            debugPrint('[HomeScreen] speech result received: "$text"');
             if (text.isEmpty) return;
             final note = Note(
               id: const Uuid().v4(),
@@ -1017,6 +1031,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               content: text,
               createdAt: DateTime.now(),
             );
+            debugPrint('[HomeScreen] dispatching CreateNote with content: "$text"');
             context.read<NoteBloc>().add(CreateNote(note));
             _speechService.stopListening();
             _timer?.cancel();

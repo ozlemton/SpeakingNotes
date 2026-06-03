@@ -67,5 +67,6 @@
   "validationEnterEmail": "Lütfen e-posta adresinizi girin",
   "validationEmailInvalid": "Geçerli bir e-posta girin",
   "validationEnterPassword": "Lütfen şifrenizi girin",
-  "validationPasswordLength": "Şifre en az 6 karakter olmalıdır"
+  "validationPasswordLength": "Şifre en az 6 karakter olmalıdır",
+  "microphonePermissionRequired": "Not kaydetmek için mikrofon izni gereklidir. Lütfen ayarlardan etkinleştirin."
 }

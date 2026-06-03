@@ -23,7 +23,7 @@ class RepositoryCategoryService implements CategoryRepository {
     try {
       await _firebase.createCategory(category);
     } catch (e) {
-      debugPrint('Firebase createCategory failed (saved locally): $e');
+      if (kDebugMode) debugPrint('Firebase createCategory failed (saved locally): $e');
     }
   }
 
@@ -33,7 +33,7 @@ class RepositoryCategoryService implements CategoryRepository {
     try {
       await _firebase.updateCategory(category);
     } catch (e) {
-      debugPrint('Firebase updateCategory failed (updated locally): $e');
+      if (kDebugMode) debugPrint('Firebase updateCategory failed (updated locally): $e');
     }
   }
 
@@ -43,7 +43,7 @@ class RepositoryCategoryService implements CategoryRepository {
     try {
       await _firebase.deleteCategory(id);
     } catch (e) {
-      debugPrint('Firebase deleteCategory failed (deleted locally): $e');
+      if (kDebugMode) debugPrint('Firebase deleteCategory failed (deleted locally): $e');
     }
   }
 }
@@ -67,7 +67,7 @@ class RepositoryNoteService implements NoteRepository {
     try {
       await _firebase.createNote(note);
     } catch (e) {
-      debugPrint('Firebase createNote failed (saved locally): $e');
+      if (kDebugMode) debugPrint('Firebase createNote failed (saved locally): $e');
     }
   }
 
@@ -77,7 +77,7 @@ class RepositoryNoteService implements NoteRepository {
     try {
       await _firebase.deleteNote(id);
     } catch (e) {
-      debugPrint('Firebase deleteNote failed (deleted locally): $e');
+      if (kDebugMode) debugPrint('Firebase deleteNote failed (deleted locally): $e');
     }
   }
 }

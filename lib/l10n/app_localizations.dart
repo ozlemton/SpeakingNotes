@@ -439,6 +439,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password must be at least 6 characters'**
   String get validationPasswordLength;
+
+  /// Snackbar shown when mic permission is denied or speech recognition unavailable
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission is required to record notes. Please enable it in settings.'**
+  String get microphonePermissionRequired;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -39,26 +38,15 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<UserModel> signIn(String email, String password) async {
-    debugPrint('[FirebaseAuthRepo] signIn: email=$email');
     try {
-      debugPrint('[FirebaseAuthRepo] signIn: calling signInWithEmailAndPassword...');
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      debugPrint('[FirebaseAuthRepo] signIn: Firebase Auth OK, uid=${credential.user!.uid}');
-      debugPrint('[FirebaseAuthRepo] signIn: currentUser after signIn=${FirebaseAuth.instance.currentUser?.uid}');
-      debugPrint('[FirebaseAuthRepo] signIn: fetching Firestore user profile...');
-      final user = await _fetchUserProfile(credential.user!.uid);
-      debugPrint('[FirebaseAuthRepo] signIn: profile loaded, username=${user.username}');
-      return user;
-    } on FirebaseAuthException catch (e, st) {
-      debugPrint('[FirebaseAuthRepo] signIn: FirebaseAuthException code=${e.code} message=${e.message}');
-      debugPrint('[FirebaseAuthRepo] signIn: stack trace:\n$st');
+      return await _fetchUserProfile(credential.user!.uid);
+    } on FirebaseAuthException catch (e) {
       throw Exception(_authErrorMessage(e.code));
-    } catch (e, st) {
-      debugPrint('[FirebaseAuthRepo] signIn: unexpected error: $e');
-      debugPrint('[FirebaseAuthRepo] signIn: stack trace:\n$st');
+    } catch (e) {
       throw Exception('Sign in failed: $e');
     }
   }

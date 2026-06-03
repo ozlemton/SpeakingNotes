@@ -185,4 +185,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get validationPasswordLength =>
       'Password must be at least 6 characters';
+
+  @override
+  String get microphonePermissionRequired =>
+      'Microphone permission is required to record notes. Please enable it in settings.';
 }

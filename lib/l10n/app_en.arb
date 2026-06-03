@@ -124,5 +124,7 @@
   "validationEnterPassword": "Please enter your password",
   "@validationEnterPassword": { "description": "Validation error when password is empty" },
   "validationPasswordLength": "Password must be at least 6 characters",
-  "@validationPasswordLength": { "description": "Validation error when password is too short" }
+  "@validationPasswordLength": { "description": "Validation error when password is too short" },
+  "microphonePermissionRequired": "Microphone permission is required to record notes. Please enable it in settings.",
+  "@microphonePermissionRequired": { "description": "Snackbar shown when mic permission is denied or speech recognition unavailable" }
 }

@@ -185,4 +185,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get validationPasswordLength => 'Şifre en az 6 karakter olmalıdır';
+
+  @override
+  String get microphonePermissionRequired =>
+      'Not kaydetmek için mikrofon izni gereklidir. Lütfen ayarlardan etkinleştirin.';
 }
