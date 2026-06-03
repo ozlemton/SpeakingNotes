@@ -47,5 +47,25 @@
     "placeholders": {
       "name": { "type": "String" }
     }
-  }
+  },
+  "allCategories": "Tüm Kategoriler",
+  "create": "Oluştur",
+  "recording": "Kayıt",
+  "audio": "Sesi",
+  "deleteNote": "Notu sil",
+  "deleteNoteConfirm": "Bu not kalıcı olarak silinecek.",
+  "wordCharCount": "{words} kelime · {chars} karakter",
+  "@wordCharCount": {
+    "placeholders": {
+      "words": { "type": "int" },
+      "chars": { "type": "int" }
+    }
+  },
+  "logoutConfirm": "Çıkış yapmak istediğinizden emin misiniz?",
+  "validationEnterUsername": "Lütfen bir kullanıcı adı girin",
+  "validationUsernameLength": "Kullanıcı adı en az 2 karakter olmalıdır",
+  "validationEnterEmail": "Lütfen e-posta adresinizi girin",
+  "validationEmailInvalid": "Geçerli bir e-posta girin",
+  "validationEnterPassword": "Lütfen şifrenizi girin",
+  "validationPasswordLength": "Şifre en az 6 karakter olmalıdır"
 }

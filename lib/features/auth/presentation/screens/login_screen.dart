@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text('SpeakingNotes', style: AppTypography.heading1),
         SizedBox(height: 6.h),
         Text(
-          'Welcome back',
+          AppLocalizations.of(context)!.welcomeBack,
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
       ],
@@ -145,27 +146,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildEmailField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
-      decoration: _inputDecoration('Email', Icons.email_outlined),
+      decoration: _inputDecoration(l10n.email, Icons.email_outlined),
       validator: (v) {
-        if (v == null || v.trim().isEmpty) return 'Please enter your email';
-        if (!v.contains('@')) return 'Enter a valid email';
+        if (v == null || v.trim().isEmpty) return l10n.validationEnterEmail;
+        if (!v.contains('@')) return l10n.validationEmailInvalid;
         return null;
       },
     );
   }
 
   Widget _buildPasswordField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _submit(),
       decoration: _inputDecoration(
-        'Password',
+        l10n.password,
         Icons.lock_outline,
         suffix: IconButton(
           icon: Icon(
@@ -178,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Please enter your password';
+        if (v == null || v.isEmpty) return l10n.validationEnterPassword;
         return null;
       },
     );
@@ -204,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       strokeWidth: 2.5,
                     ),
                   )
-                : const Text('Login'),
+                : Text(AppLocalizations.of(context)!.login),
           ),
         );
       },
@@ -212,17 +215,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSignUpLink() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account? ",
+          l10n.noAccount,
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
         GestureDetector(
           onTap: () => context.push('/signup'),
           child: Text(
-            'Sign Up',
+            l10n.signUp,
             style: AppTypography.body2.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,

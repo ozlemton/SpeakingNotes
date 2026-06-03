@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -23,11 +24,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   String _selectedLanguage = 'tr';
-
-  static const _languages = [
-    ('tr', 'Turkish'),
-    ('en', 'English'),
-  ];
 
   @override
   void dispose() {
@@ -120,7 +116,7 @@ class _SignupScreenState extends State<SignupScreen> {
         Text('SpeakingNotes', style: AppTypography.heading1),
         SizedBox(height: 6.h),
         Text(
-          'Create your account',
+          AppLocalizations.of(context)!.createAccount,
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
       ],
@@ -128,40 +124,43 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _buildUsernameField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _usernameController,
       textInputAction: TextInputAction.next,
-      decoration: _inputDecoration('Username', Icons.person_outline),
+      decoration: _inputDecoration(l10n.username, Icons.person_outline),
       validator: (v) {
-        if (v == null || v.trim().isEmpty) return 'Please enter a username';
-        if (v.trim().length < 2) return 'Username must be at least 2 characters';
+        if (v == null || v.trim().isEmpty) return l10n.validationEnterUsername;
+        if (v.trim().length < 2) return l10n.validationUsernameLength;
         return null;
       },
     );
   }
 
   Widget _buildEmailField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
-      decoration: _inputDecoration('Email', Icons.email_outlined),
+      decoration: _inputDecoration(l10n.email, Icons.email_outlined),
       validator: (v) {
-        if (v == null || v.trim().isEmpty) return 'Please enter your email';
-        if (!v.contains('@')) return 'Enter a valid email';
+        if (v == null || v.trim().isEmpty) return l10n.validationEnterEmail;
+        if (!v.contains('@')) return l10n.validationEmailInvalid;
         return null;
       },
     );
   }
 
   Widget _buildPasswordField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _submit(),
       decoration: _inputDecoration(
-        'Password',
+        l10n.password,
         Icons.lock_outline,
         suffix: IconButton(
           icon: Icon(
@@ -174,14 +173,19 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Please enter a password';
-        if (v.length < 6) return 'Password must be at least 6 characters';
+        if (v == null || v.isEmpty) return l10n.validationEnterPassword;
+        if (v.length < 6) return l10n.validationPasswordLength;
         return null;
       },
     );
   }
 
   Widget _buildLanguageDropdown() {
+    final l10n = AppLocalizations.of(context)!;
+    final languages = [
+      ('tr', l10n.turkish),
+      ('en', l10n.english),
+    ];
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w),
       decoration: BoxDecoration(
@@ -193,7 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
         child: DropdownButton<String>(
           value: _selectedLanguage,
           icon: Icon(Icons.keyboard_arrow_down, color: AppColors.iconSecondary, size: 20.r),
-          items: _languages
+          items: languages
               .map((lang) => DropdownMenuItem(
                     value: lang.$1,
                     child: Row(
@@ -233,7 +237,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       strokeWidth: 2.5,
                     ),
                   )
-                : const Text('Sign Up'),
+                : Text(AppLocalizations.of(context)!.signUp),
           ),
         );
       },
@@ -241,17 +245,18 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _buildLoginLink() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Already have an account? ',
+          l10n.alreadyHaveAccount,
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
         GestureDetector(
           onTap: () => context.pop(),
           child: Text(
-            'Login',
+            l10n.login,
             style: AppTypography.body2.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,

@@ -90,5 +90,39 @@
     "placeholders": {
       "name": { "type": "String" }
     }
-  }
+  },
+  "allCategories": "All Categories",
+  "@allCategories": { "description": "Label above the category list in the bottom sheet" },
+  "create": "Create",
+  "@create": { "description": "Create button label" },
+  "recording": "Recording",
+  "@recording": { "description": "First word of the recording sheet title (styled in primary color)" },
+  "audio": "Audio",
+  "@audio": { "description": "Second word of the recording sheet title" },
+  "deleteNote": "Delete note",
+  "@deleteNote": { "description": "Dialog title when deleting a note" },
+  "deleteNoteConfirm": "This note will be permanently deleted.",
+  "@deleteNoteConfirm": { "description": "Dialog body when deleting a note" },
+  "wordCharCount": "{words} words · {chars} characters",
+  "@wordCharCount": {
+    "description": "Word and character count shown at the bottom of note detail",
+    "placeholders": {
+      "words": { "type": "int" },
+      "chars": { "type": "int" }
+    }
+  },
+  "logoutConfirm": "Are you sure you want to logout?",
+  "@logoutConfirm": { "description": "Confirmation message in the logout dialog" },
+  "validationEnterUsername": "Please enter a username",
+  "@validationEnterUsername": { "description": "Validation error when username is empty" },
+  "validationUsernameLength": "Username must be at least 2 characters",
+  "@validationUsernameLength": { "description": "Validation error when username is too short" },
+  "validationEnterEmail": "Please enter your email",
+  "@validationEnterEmail": { "description": "Validation error when email is empty" },
+  "validationEmailInvalid": "Enter a valid email",
+  "@validationEmailInvalid": { "description": "Validation error when email format is wrong" },
+  "validationEnterPassword": "Please enter your password",
+  "@validationEnterPassword": { "description": "Validation error when password is empty" },
+  "validationPasswordLength": "Password must be at least 6 characters",
+  "@validationPasswordLength": { "description": "Validation error when password is too short" }
 }

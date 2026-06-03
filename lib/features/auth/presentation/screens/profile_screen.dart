@@ -258,7 +258,7 @@ class _LogoutButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         title: Text(l10n.logout),
         content: Text(
-          'Are you sure you want to logout?',
+          l10n.logoutConfirm,
           style: AppTypography.body2.copyWith(color: AppColors.textSecondary),
         ),
         actions: [

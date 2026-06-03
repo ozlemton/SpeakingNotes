@@ -139,4 +139,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String deleteCategoryConfirm(String name) {
     return 'Delete \"$name\"? Notes in this category will not be deleted.';
   }
+
+  @override
+  String get allCategories => 'All Categories';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get recording => 'Recording';
+
+  @override
+  String get audio => 'Audio';
+
+  @override
+  String get deleteNote => 'Delete note';
+
+  @override
+  String get deleteNoteConfirm => 'This note will be permanently deleted.';
+
+  @override
+  String wordCharCount(int words, int chars) {
+    return '$words words · $chars characters';
+  }
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to logout?';
+
+  @override
+  String get validationEnterUsername => 'Please enter a username';
+
+  @override
+  String get validationUsernameLength =>
+      'Username must be at least 2 characters';
+
+  @override
+  String get validationEnterEmail => 'Please enter your email';
+
+  @override
+  String get validationEmailInvalid => 'Enter a valid email';
+
+  @override
+  String get validationEnterPassword => 'Please enter your password';
+
+  @override
+  String get validationPasswordLength =>
+      'Password must be at least 6 characters';
 }

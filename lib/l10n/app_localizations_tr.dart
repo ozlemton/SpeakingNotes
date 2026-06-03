@@ -140,4 +140,49 @@ class AppLocalizationsTr extends AppLocalizations {
   String deleteCategoryConfirm(String name) {
     return '\"$name\" silinsin mi? Bu kategorideki notlar silinmeyecek.';
   }
+
+  @override
+  String get allCategories => 'Tüm Kategoriler';
+
+  @override
+  String get create => 'Oluştur';
+
+  @override
+  String get recording => 'Kayıt';
+
+  @override
+  String get audio => 'Sesi';
+
+  @override
+  String get deleteNote => 'Notu sil';
+
+  @override
+  String get deleteNoteConfirm => 'Bu not kalıcı olarak silinecek.';
+
+  @override
+  String wordCharCount(int words, int chars) {
+    return '$words kelime · $chars karakter';
+  }
+
+  @override
+  String get logoutConfirm => 'Çıkış yapmak istediğinizden emin misiniz?';
+
+  @override
+  String get validationEnterUsername => 'Lütfen bir kullanıcı adı girin';
+
+  @override
+  String get validationUsernameLength =>
+      'Kullanıcı adı en az 2 karakter olmalıdır';
+
+  @override
+  String get validationEnterEmail => 'Lütfen e-posta adresinizi girin';
+
+  @override
+  String get validationEmailInvalid => 'Geçerli bir e-posta girin';
+
+  @override
+  String get validationEnterPassword => 'Lütfen şifrenizi girin';
+
+  @override
+  String get validationPasswordLength => 'Şifre en az 6 karakter olmalıdır';
 }

@@ -355,6 +355,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete \"{name}\"? Notes in this category will not be deleted.'**
   String deleteCategoryConfirm(String name);
+
+  /// Label above the category list in the bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'All Categories'**
+  String get allCategories;
+
+  /// Create button label
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// First word of the recording sheet title (styled in primary color)
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get recording;
+
+  /// Second word of the recording sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get audio;
+
+  /// Dialog title when deleting a note
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get deleteNote;
+
+  /// Dialog body when deleting a note
+  ///
+  /// In en, this message translates to:
+  /// **'This note will be permanently deleted.'**
+  String get deleteNoteConfirm;
+
+  /// Word and character count shown at the bottom of note detail
+  ///
+  /// In en, this message translates to:
+  /// **'{words} words · {chars} characters'**
+  String wordCharCount(int words, int chars);
+
+  /// Confirmation message in the logout dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirm;
+
+  /// Validation error when username is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a username'**
+  String get validationEnterUsername;
+
+  /// Validation error when username is too short
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least 2 characters'**
+  String get validationUsernameLength;
+
+  /// Validation error when email is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get validationEnterEmail;
+
+  /// Validation error when email format is wrong
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get validationEmailInvalid;
+
+  /// Validation error when password is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get validationEnterPassword;
+
+  /// Validation error when password is too short
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get validationPasswordLength;
 }
 
 class _AppLocalizationsDelegate

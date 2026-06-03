@@ -11,8 +11,10 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../note/domain/models/note.dart';
 import '../../../note/presentation/bloc/note_bloc.dart';
 import '../../../note/presentation/bloc/note_event.dart';
@@ -53,16 +55,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showFirebaseErrorDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Sync Unavailable'),
-        content: const Text(
-            'Cloud sync is unavailable. Your notes will be saved locally only.'),
+        title: Text(l10n.syncUnavailable),
+        content: Text(l10n.syncUnavailableMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -205,21 +207,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.folder_outlined,
-                        color: AppColors.primary, size: 18.r),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Category',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                  ],
-                ),
+                child: Icon(Icons.folder_outlined,
+                    color: AppColors.primary, size: 20.r),
               ),
             ),
             SizedBox(width: 8.w),
@@ -259,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: _searchController,
         onChanged: (v) => setState(() => _searchQuery = v),
         decoration: InputDecoration(
-          hintText: 'Search notes...',
+          hintText: AppLocalizations.of(context)!.searchNotes,
           hintStyle: TextStyle(color: AppColors.iconSecondary, fontSize: 14.sp),
           prefixIcon: Icon(Icons.search, color: AppColors.iconSecondary, size: 20.r),
           suffixIcon: _searchQuery.isNotEmpty
@@ -287,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
             noteBloc.add(SelectCategory(null));
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Category deleted')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.categoryDeleted)),
           );
         }
       },
@@ -297,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 40.h,
             child: Center(
               child: Text(
-                'Failed to load categories',
+                AppLocalizations.of(context)!.failedToLoadCategories,
                 style: TextStyle(color: AppColors.error, fontSize: 12.sp),
               ),
             ),
@@ -305,41 +294,39 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         final categories =
             categoryState is CategoryLoaded ? categoryState.categories : <Category>[];
-        return SizedBox(
-          height: 40.h,
-          child: BlocBuilder<NoteBloc, NoteState>(
-            buildWhen: (prev, next) =>
-                prev.selectedCategoryId != next.selectedCategoryId,
-            builder: (context, noteState) {
-              return ListView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
+        return BlocBuilder<NoteBloc, NoteState>(
+          buildWhen: (prev, next) =>
+              prev.selectedCategoryId != next.selectedCategoryId,
+          builder: (context, noteState) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: [
                   _FilterChip(
-                    label: 'All Notes',
+                    label: AppLocalizations.of(context)!.allNotes,
                     isSelected: noteState.selectedCategoryId == null,
                     onTap: () => context.read<NoteBloc>().add(SelectCategory(null)),
                   ),
-                  ...categories.map((cat) => Padding(
-                        padding: EdgeInsets.only(left: 8.w),
-                        child: _FilterChip(
-                          label: cat.name,
-                          isSelected: noteState.selectedCategoryId == cat.id,
-                          onTap: () =>
-                              context.read<NoteBloc>().add(SelectCategory(cat.id)),
-                          onLongPress: () => _showCategoryOptions(cat),
-                        ),
+                  ...categories.map((cat) => _FilterChip(
+                        label: cat.name,
+                        isSelected: noteState.selectedCategoryId == cat.id,
+                        onTap: () =>
+                            context.read<NoteBloc>().add(SelectCategory(cat.id)),
+                        onLongPress: () => _showCategoryOptions(cat),
                       )),
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
   void _showCategoryOptions(Category category) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
@@ -362,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 8.h),
             ListTile(
               leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
-              title: const Text('Edit'),
+              title: Text(l10n.edit),
               onTap: () {
                 Navigator.pop(context);
                 _showEditCategoryDialog(category);
@@ -370,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: const Text('Delete', style: TextStyle(color: AppColors.error)),
+              title: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteCategoryDialog(category);
@@ -384,20 +371,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showEditCategoryDialog(Category category) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: category.name);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Category'),
+        title: Text(l10n.editCategory),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Category name'),
+          decoration: InputDecoration(hintText: l10n.categoryName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -410,12 +398,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
                 context.read<CategoryBloc>().add(UpdateCategory(updated));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Category updated')),
+                  SnackBar(content: Text(l10n.categoryUpdated)),
                 );
               }
               Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -423,23 +411,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showDeleteCategoryDialog(Category category) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text(
-            'Delete "${category.name}"? Notes in this category will not be deleted.'),
+        title: Text(l10n.deleteCategory),
+        content: Text(l10n.deleteCategoryConfirm(category.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.read<CategoryBloc>().add(DeleteCategory(category.id));
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -461,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
                 SizedBox(height: 12.h),
                 Text(
-                  'Something went wrong. Please try again.',
+                  AppLocalizations.of(context)!.somethingWentWrong,
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 15.sp),
                 ),
               ],
@@ -478,6 +466,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   .toList();
           if (notes.isEmpty) {
             final isSearching = _searchQuery.isNotEmpty;
+            final l10n = AppLocalizations.of(context)!;
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -489,9 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    isSearching
-                        ? 'No notes found for your search.'
-                        : 'No notes yet. Tap the mic to record.',
+                    isSearching ? l10n.noNotesFound : l10n.noNotesYet,
                     style: TextStyle(color: AppColors.disabled, fontSize: 15.sp),
                   ),
                 ],
@@ -523,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context.read<NoteBloc>().state.selectedCategoryId),
                       );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Note deleted')),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.noteDeleted)),
                   );
                 },
                 child: GestureDetector(
@@ -580,7 +567,7 @@ class _FilterChipState extends State<_FilterChip> {
     final hasOptions = widget.onLongPress != null;
 
     return Tooltip(
-      message: hasOptions ? 'Hold to edit or delete' : '',
+      message: hasOptions ? AppLocalizations.of(context)!.holdToEditOrDelete : '',
       child: GestureDetector(
         onTap: widget.onTap,
         onTapDown: _onTapDown,
@@ -732,19 +719,20 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
   }
 
   void _showCreateDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('New Category'),
+        title: Text(l10n.newCategory),
         content: TextField(
           controller: _nameController,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Category name'),
+          decoration: InputDecoration(hintText: l10n.categoryName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -760,7 +748,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -769,6 +757,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(
           20.w, 24.h, 20.w, MediaQuery.of(context).viewInsets.bottom + 32.h),
@@ -792,7 +781,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
             children: [
               Expanded(
                 child: Text(
-                  'Select Category',
+                  l10n.selectCategory,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18.sp,
@@ -818,7 +807,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'All Categories',
+              l10n.allCategories,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,
@@ -895,9 +884,9 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
               ),
               child: Icon(Icons.add, color: AppColors.white, size: 20.r),
             ),
-            title: const Text(
-              'Create New Category',
-              style: TextStyle(fontWeight: FontWeight.w500),
+            title: Text(
+              l10n.createNewCategory,
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             onTap: _showCreateDialog,
           ),
@@ -917,7 +906,7 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                 ),
               ),
               child: Text(
-                'Select',
+                l10n.select,
                 style: TextStyle(
                   color: AppColors.white,
                   fontSize: 16.sp,
@@ -1012,7 +1001,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             if (mounted) {
               noteBloc.add(StopRecording());
               ScaffoldMessenger.of(navigator.context).showSnackBar(
-                const SnackBar(content: Text('Failed to save note. Please try again.')),
+                SnackBar(content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote)),
               );
             }
           }
@@ -1073,7 +1062,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Recording ',
+                          text: '${AppLocalizations.of(context)!.recording} ',
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
@@ -1081,7 +1070,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                           ),
                         ),
                         TextSpan(
-                          text: 'Audio',
+                          text: AppLocalizations.of(context)!.audio,
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.bold,

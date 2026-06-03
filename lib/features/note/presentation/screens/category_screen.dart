@@ -10,6 +10,7 @@ import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../category/domain/models/category.dart';
 import '../../domain/models/note.dart';
 import '../bloc/note_bloc.dart';
@@ -83,7 +84,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
                   SizedBox(height: 12.h),
                   Text(
-                    'Something went wrong. Please try again.',
+                    AppLocalizations.of(context)!.somethingWentWrong,
                     style: AppTypography.body2
                         .copyWith(color: AppColors.textSecondary),
                   ),
@@ -100,7 +101,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     Icon(Icons.mic_none, size: 72.r, color: AppColors.disabled),
                     SizedBox(height: 16.h),
                     Text(
-                      'No notes yet. Tap the mic to record.',
+                      AppLocalizations.of(context)!.noNotesYet,
                       style: AppTypography.body2
                           .copyWith(color: AppColors.textSecondary),
                     ),
@@ -270,8 +271,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             if (mounted) {
               noteBloc.add(StopRecording());
               ScaffoldMessenger.of(navigator.context).showSnackBar(
-                const SnackBar(
-                    content: Text('Failed to save note. Please try again.')),
+                SnackBar(content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote)),
               );
             }
           }
@@ -331,7 +331,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Recording ',
+                          text: '${AppLocalizations.of(context)!.recording} ',
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
@@ -339,7 +339,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                           ),
                         ),
                         TextSpan(
-                          text: 'Audio',
+                          text: AppLocalizations.of(context)!.audio,
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.bold,

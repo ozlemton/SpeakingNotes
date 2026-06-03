@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../category/presentation/bloc/category_bloc.dart';
 import '../../../category/presentation/bloc/category_state.dart';
 import '../../domain/models/note.dart';
@@ -42,16 +43,17 @@ class NoteDetailScreen extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-        title: const Text('Delete note'),
-        content: const Text('This note will be permanently deleted.'),
+        title: Text(l10n.deleteNote),
+        content: Text(l10n.deleteNoteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -61,7 +63,7 @@ class NoteDetailScreen extends StatelessWidget {
                   );
               context.pop();
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -150,7 +152,7 @@ class NoteDetailScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
               child: Text(
-                '$_wordCount words · $_charCount characters',
+                AppLocalizations.of(context)!.wordCharCount(_wordCount, _charCount),
                 style: AppTypography.caption,
               ),
             ),
