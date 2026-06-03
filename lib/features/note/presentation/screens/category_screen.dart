@@ -111,7 +111,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
             return ListView.builder(
               padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 100.h),
               itemCount: state.notes.length,
-              itemBuilder: (_, i) => _NoteCard(note: state.notes[i]),
+              itemBuilder: (ctx, i) {
+                final note = state.notes[i];
+                return GestureDetector(
+                  onTap: () => ctx.push('/note/${note.id}', extra: note),
+                  child: _NoteCard(note: note),
+                );
+              },
             );
           }
           return const SizedBox.shrink();

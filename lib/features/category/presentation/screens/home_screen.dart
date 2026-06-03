@@ -526,7 +526,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SnackBar(content: Text('Note deleted')),
                   );
                 },
-                child: _NoteCard(note: note),
+                child: GestureDetector(
+                  onTap: () =>
+                      context.push('/note/${note.id}', extra: note),
+                  child: _NoteCard(note: note),
+                ),
               );
             },
           );

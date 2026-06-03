@@ -10,7 +10,9 @@ import '../../features/auth/presentation/screens/profile_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/category/domain/models/category.dart';
 import '../../features/category/presentation/screens/home_screen.dart';
+import '../../features/note/domain/models/note.dart';
 import '../../features/note/presentation/screens/category_screen.dart';
+import '../../features/note/presentation/screens/note_detail_screen.dart';
 import '../theme/app_colors.dart';
 
 abstract final class AppRouter {
@@ -63,6 +65,13 @@ abstract final class AppRouter {
           builder: (_, state) {
             final category = state.extra! as Category;
             return CategoryScreen(category: category);
+          },
+        ),
+        GoRoute(
+          path: '/note/:id',
+          builder: (_, state) {
+            final note = state.extra! as Note;
+            return NoteDetailScreen(note: note);
           },
         ),
       ],
