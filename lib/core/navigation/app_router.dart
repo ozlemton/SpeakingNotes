@@ -11,7 +11,7 @@ import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/category/domain/models/category.dart';
 import '../../features/category/presentation/screens/home_screen.dart';
 import '../../features/note/presentation/screens/category_screen.dart';
-import '../../features/splash/presentation/screens/splash_screen.dart';
+import '../theme/app_colors.dart';
 
 abstract final class AppRouter {
   static GoRouter create({
@@ -20,26 +20,27 @@ abstract final class AppRouter {
   }) {
     final notifier = _RouterNotifier(authBloc);
     return GoRouter(
-      initialLocation: '/splash',
+      initialLocation: '/login',
       refreshListenable: notifier,
       redirect: (context, state) {
         final authState = notifier.authState;
         final path = state.uri.path;
 
-        // Splash owns its own navigation — never redirect away from it.
-        if (path == '/splash') return null;
+        if (authState is AuthLoading || authState is AuthInitial) {
+          return path == '/loading' ? null : '/loading';
+        }
 
         final isAuthenticated = authState is AuthAuthenticated;
         final isPublic = path == '/login' || path == '/signup';
 
         if (!isAuthenticated && !isPublic) return '/login';
-        if (isAuthenticated && isPublic) return '/home';
+        if (isAuthenticated && (isPublic || path == '/loading')) return '/home';
         return null;
       },
       routes: [
         GoRoute(
-          path: '/splash',
-          builder: (_, __) => const SplashScreen(),
+          path: '/loading',
+          builder: (_, __) => const _LoadingScreen(),
         ),
         GoRoute(
           path: '/login',
@@ -90,3 +91,16 @@ class _RouterNotifier extends ChangeNotifier {
   }
 }
 
+class _LoadingScreen extends StatelessWidget {
+  const _LoadingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+    );
+  }
+}
