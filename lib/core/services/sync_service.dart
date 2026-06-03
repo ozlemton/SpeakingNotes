@@ -36,8 +36,7 @@ class SyncService {
         return;
       }
       debugPrint('[Sync] online — starting category and note sync');
-      await _syncCategories();
-      await _syncNotes();
+      await Future.wait([_syncCategories(), _syncNotes()]);
       debugPrint('[Sync] syncAll() completed');
     } catch (e) {
       debugPrint('[Sync] syncAll() failed: $e');

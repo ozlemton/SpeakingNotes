@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,10 +79,9 @@ class MyApp extends StatelessWidget {
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             setCurrentUserId(state.user.id);
-            getIt<SyncService>().syncAll().then((_) {
-              getIt<CategoryBloc>().add(LoadCategories());
-              getIt<NoteBloc>().add(LoadAllNotes());
-            });
+            getIt<CategoryBloc>().add(LoadCategories());
+            getIt<NoteBloc>().add(LoadAllNotes());
+            unawaited(getIt<SyncService>().syncAll());
           } else if (state is AuthUnauthenticated) {
             clearCurrentUserId();
           }
