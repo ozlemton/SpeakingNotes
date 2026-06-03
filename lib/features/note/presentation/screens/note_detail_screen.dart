@@ -23,8 +23,22 @@ class NoteDetailScreen extends StatelessWidget {
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December',
     ];
-    return '${months[d.month - 1]} ${d.day}, ${d.year}  '
-        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return '${months[d.month - 1]} ${d.day}, ${d.year}';
+  }
+
+  int get _wordCount =>
+      note.content.trim().isEmpty ? 0 : note.content.trim().split(RegExp(r'\s+')).length;
+
+  int get _charCount => note.content.length;
+
+  String? _resolveCategoryName(BuildContext context) {
+    final state = context.read<CategoryBloc>().state;
+    if (state is CategoryLoaded) {
+      try {
+        return state.categories.firstWhere((c) => c.id == note.categoryId).name;
+      } catch (_) {}
+    }
+    return null;
   }
 
   void _confirmDelete(BuildContext context) {
@@ -47,10 +61,7 @@ class NoteDetailScreen extends StatelessWidget {
                   );
               context.pop();
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.error),
-            ),
+            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -62,82 +73,91 @@ class NoteDetailScreen extends StatelessWidget {
     final categoryName = _resolveCategoryName(context);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        leading: GestureDetector(
-          onTap: () => context.pop(),
-          child: Icon(Icons.arrow_back_ios_new,
-              color: AppColors.textPrimary, size: 20.r),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: Icon(Icons.arrow_back_ios_new,
+              color: AppColors.primary, size: 20.r),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Note', style: AppTypography.heading3),
-            if (categoryName != null)
-              Text(
-                categoryName,
-                style: AppTypography.caption,
-              ),
-          ],
-        ),
-        titleSpacing: 0,
+        title: Text(_formattedDate, style: AppTypography.heading3),
         actions: [
           IconButton(
             onPressed: () => _confirmDelete(context),
             icon: Icon(Icons.delete_outline,
                 color: AppColors.error, size: 22.r),
           ),
-          SizedBox(width: 4.w),
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.fromLTRB(
-            AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  note.content,
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    height: 1.65,
-                    color: AppColors.textPrimary,
-                  ),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (categoryName != null) ...[
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Text(
+                          categoryName,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: AppSpacing.md),
+                    ],
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Text(
+                          note.content,
+                          style: AppTypography.body1.copyWith(
+                            height: 1.65,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: 16.h),
-            const Divider(color: AppColors.divider, height: 1),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Icon(Icons.access_time,
-                    size: 14.r, color: AppColors.textSecondary),
-                SizedBox(width: 6.w),
-                Text(_formattedDate, style: AppTypography.caption),
-              ],
+            SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+              child: Text(
+                '$_wordCount words · $_charCount characters',
+                style: AppTypography.caption,
+              ),
             ),
+            SizedBox(height: AppSpacing.sm),
           ],
         ),
       ),
     );
-  }
-
-  String? _resolveCategoryName(BuildContext context) {
-    final state = context.read<CategoryBloc>().state;
-    if (state is CategoryLoaded) {
-      try {
-        return state.categories
-            .firstWhere((c) => c.id == note.categoryId)
-            .name;
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
   }
 }
