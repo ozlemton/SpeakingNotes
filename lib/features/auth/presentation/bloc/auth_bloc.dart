@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -65,12 +66,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SignIn event,
     Emitter<AuthState> emit,
   ) async {
+    debugPrint('[AuthBloc] SignIn started for email=${event.email}');
     emit(AuthLoading());
     try {
       final user = await signIn(event.email, event.password);
+      debugPrint('[AuthBloc] SignIn result: id=${user.id} username=${user.username} language=${user.language}');
       emit(AuthAuthenticated(user));
-    } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+    } catch (e, st) {
+      final message = e.toString().replaceFirst('Exception: ', '');
+      debugPrint('[AuthBloc] SignIn error: $message');
+      debugPrint('[AuthBloc] SignIn stack trace:\n$st');
+      emit(AuthError(message));
     }
   }
 

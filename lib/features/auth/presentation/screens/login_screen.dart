@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -43,12 +44,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthError) {
+          setState(() => _errorMessage = state.message);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
               backgroundColor: AppColors.error,
             ),
           );
+        } else if (state is AuthLoading) {
+          setState(() => _errorMessage = null);
         }
       },
       child: Scaffold(
@@ -68,6 +72,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     _buildEmailField(),
                     SizedBox(height: 16.h),
                     _buildPasswordField(),
+                    if (_errorMessage != null) ...[
+                      SizedBox(height: 16.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.w, vertical: 12.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                              color: AppColors.error.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: AppColors.error, size: 18.r),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: AppTypography.caption
+                                    .copyWith(color: AppColors.error),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     SizedBox(height: 28.h),
                     _buildLoginButton(),
                     SizedBox(height: 24.h),
