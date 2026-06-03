@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/foundation.dart';
 import '../../../../core/services/app_database.dart';
 import '../../domain/models/category.dart' as domain;
 import '../../domain/repositories/category_repository.dart';
@@ -9,16 +10,21 @@ class LocalCategoryRepository implements CategoryRepository {
 
   LocalCategoryRepository(this.db);
 
-  void setUserId(String? userId) => _userId = userId;
+  void setUserId(String? userId) {
+    debugPrint('[LocalCategoryRepo] setUserId: $userId');
+    _userId = userId;
+  }
 
   @override
   Future<List<domain.Category>> getAllCategories() async {
     try {
+      debugPrint('[LocalCategoryRepo] getAllCategories with _userId=$_userId');
       final query = db.select(db.categories);
       if (_userId != null) {
         query.where((t) => t.userId.equals(_userId!));
       }
       final rows = await query.get();
+      debugPrint('[LocalCategoryRepo] found ${rows.length} categories');
       return rows
           .map((r) => domain.Category(
                 id: r.id,

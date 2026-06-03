@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/foundation.dart';
 import '../../../../core/services/app_database.dart';
 import '../../domain/models/note.dart' as domain;
 import '../../domain/repositories/note_repository.dart';
@@ -9,16 +10,21 @@ class LocalNoteRepository implements NoteRepository {
 
   LocalNoteRepository(this.db);
 
-  void setUserId(String? userId) => _userId = userId;
+  void setUserId(String? userId) {
+    debugPrint('[LocalNoteRepo] setUserId: $userId');
+    _userId = userId;
+  }
 
   @override
   Future<List<domain.Note>> getAllNotes() async {
     try {
+      debugPrint('[LocalNoteRepo] getAllNotes with _userId=$_userId');
       final query = db.select(db.notes);
       if (_userId != null) {
         query.where((t) => t.userId.equals(_userId!));
       }
       final rows = await query.get();
+      debugPrint('[LocalNoteRepo] found ${rows.length} notes');
       return rows
           .map((r) => domain.Note(
                 id: r.id,
