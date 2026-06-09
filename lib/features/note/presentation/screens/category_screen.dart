@@ -34,15 +34,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   void _showRecordingSheet() {
-    if (!getIt<SpeechService>().isAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.microphonePermissionRequired),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
     final noteBloc = context.read<NoteBloc>();
     showModalBottomSheet(
       context: context,

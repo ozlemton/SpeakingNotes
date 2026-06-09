@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -64,7 +65,9 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<UserModel?> getCurrentUser() async {
     try {
       final firebaseUser = _auth.currentUser;
+      debugPrint('[FirebaseAuthRepository] currentUser: $firebaseUser');
       if (firebaseUser == null) return null;
+      debugPrint('[FirebaseAuthRepository] currentUser email: ${firebaseUser.email}');
       return await _fetchUserProfile(firebaseUser.uid);
     } catch (e) {
       return null;

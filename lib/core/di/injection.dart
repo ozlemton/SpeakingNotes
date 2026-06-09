@@ -37,13 +37,7 @@ final getIt = GetIt.instance;
 Future<void> setupDependencies() async {
   getIt.registerSingleton<AppDatabase>(AppDatabase());
 
-  final speechService = SpeechService();
-  try {
-    await speechService.initialize();
-  } catch (e) {
-    if (kDebugMode) debugPrint('SpeechService initialization failed: $e');
-  }
-  getIt.registerSingleton<SpeechService>(speechService);
+  getIt.registerSingleton<SpeechService>(SpeechService());
 
   // Auth
   getIt.registerSingleton<AuthRepository>(

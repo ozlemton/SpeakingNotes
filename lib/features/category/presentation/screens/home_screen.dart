@@ -104,15 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRecordingSheet() {
-    if (!getIt<SpeechService>().isAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.microphonePermissionRequired),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
     final noteBloc = context.read<NoteBloc>();
     final categoryState = context.read<CategoryBloc>().state;
     final selectedId = noteBloc.state.selectedCategoryId;
@@ -356,21 +347,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(height: 8.h),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
-              title: Text(l10n.edit),
-              onTap: () {
-                Navigator.pop(context);
-                _showEditCategoryDialog(category);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteCategoryDialog(category);
-              },
+            Material(
+              color: AppColors.white,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
+                    title: Text(l10n.edit),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showEditCategoryDialog(category);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline, color: AppColors.error),
+                    title: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showDeleteCategoryDialog(category);
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 8.h),
           ],
@@ -830,7 +829,9 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
             builder: (context, state) {
               final categories =
                   state is CategoryLoaded ? state.categories : <Category>[];
-              return Column(
+              return Material(
+                color: AppColors.white,
+                child: Column(
                 children: categories
                     .map((cat) => ListTile(
                           contentPadding: EdgeInsets.zero,
@@ -878,26 +879,30 @@ class _CategoryBottomSheetState extends State<_CategoryBottomSheet> {
                           onTap: () => setState(() => _selected = cat),
                         ))
                     .toList(),
+                ),
               );
             },
           ),
           Divider(height: 24.h),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Container(
-              width: 38.r,
-              height: 38.r,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(8.r),
+          Material(
+            color: AppColors.white,
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                width: 38.r,
+                height: 38.r,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(Icons.add, color: AppColors.white, size: 20.r),
               ),
-              child: Icon(Icons.add, color: AppColors.white, size: 20.r),
+              title: Text(
+                l10n.createNewCategory,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              onTap: _showCreateDialog,
             ),
-            title: Text(
-              l10n.createNewCategory,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            onTap: _showCreateDialog,
           ),
           SizedBox(height: 20.h),
           SizedBox(
