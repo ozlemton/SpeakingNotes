@@ -77,7 +77,6 @@ class SpeechService {
         },
         listenFor: listenFor,
         pauseFor: pauseFor,
-        onDevice: false,
       );
     } catch (e) {
       if (kDebugMode) debugPrint('SpeechService.listen failed: $e');
