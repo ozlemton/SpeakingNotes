@@ -26,6 +26,7 @@ import '../../features/note/domain/usecases/delete_note_usecase.dart';
 import '../../features/note/domain/usecases/get_all_notes_usecase.dart';
 import '../../features/note/domain/usecases/get_notes_by_category_usecase.dart';
 import '../../features/note/presentation/bloc/note_bloc.dart';
+import '../../features/note/presentation/bloc/note_event.dart';
 import '../services/app_database.dart';
 import '../services/repository_service.dart';
 import '../services/speech_service.dart';
@@ -126,20 +127,21 @@ Future<void> setupDependencies() async {
     () => DeleteNoteUseCase(getIt<NoteRepository>()),
   );
 
-  getIt.registerLazySingleton<CategoryBloc>(
-    () => CategoryBloc(
-      getAllCategories: getIt<GetAllCategoriesUseCase>(),
-      createCategory: getIt<CreateCategoryUseCase>(),
-      updateCategory: getIt<UpdateCategoryUseCase>(),
-      deleteCategory: getIt<DeleteCategoryUseCase>(),
-    ),
-  );
   getIt.registerLazySingleton<NoteBloc>(
     () => NoteBloc(
       getAllNotes: getIt<GetAllNotesUseCase>(),
       getNotesByCategory: getIt<GetNotesByCategoryUseCase>(),
       createNote: getIt<CreateNoteUseCase>(),
       deleteNote: getIt<DeleteNoteUseCase>(),
+    ),
+  );
+  getIt.registerLazySingleton<CategoryBloc>(
+    () => CategoryBloc(
+      getAllCategories: getIt<GetAllCategoriesUseCase>(),
+      createCategory: getIt<CreateCategoryUseCase>(),
+      updateCategory: getIt<UpdateCategoryUseCase>(),
+      deleteCategory: getIt<DeleteCategoryUseCase>(),
+      onCategoryDeleted: () => getIt<NoteBloc>().add(LoadAllNotes()),
     ),
   );
 }

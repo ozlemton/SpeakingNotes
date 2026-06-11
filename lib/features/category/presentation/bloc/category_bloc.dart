@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/create_category_usecase.dart';
@@ -12,12 +13,14 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final CreateCategoryUseCase createCategory;
   final UpdateCategoryUseCase updateCategory;
   final DeleteCategoryUseCase deleteCategory;
+  final VoidCallback? onCategoryDeleted;
 
   CategoryBloc({
     required this.getAllCategories,
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
+    this.onCategoryDeleted,
   }) : super(CategoryInitial()) {
     on<LoadCategories>(_onLoadCategories);
     on<CreateCategory>(_onCreateCategory);
@@ -72,6 +75,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       await deleteCategory(event.id);
       final categories = await getAllCategories();
       emit(CategoryLoaded(categories, deletedId: event.id));
+      onCategoryDeleted?.call();
     } catch (e) {
       emit(CategoryError(e.toString()));
     }
