@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// Subtitle on login screen
   ///
   /// In en, this message translates to:
-  /// **'Welcome back'**
+  /// **'Welcome!'**
   String get welcomeBack;
 
   /// Subtitle on sign up screen

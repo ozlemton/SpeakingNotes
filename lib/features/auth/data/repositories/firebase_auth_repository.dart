@@ -40,14 +40,29 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<UserModel> signIn(String email, String password) async {
     try {
+      debugPrint('[FirebaseAuthRepository] signIn() called for: $email');
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return await _fetchUserProfile(credential.user!.uid);
+      debugPrint('[FirebaseAuthRepository] signIn() success uid: ${credential.user?.uid}');
+      final firebaseUser = credential.user!;
+      try {
+        return await _fetchUserProfile(firebaseUser.uid);
+      } catch (e) {
+        debugPrint('[FirebaseAuthRepository] Firestore profile fetch failed, using auth data: $e');
+        return UserModel(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          username: firebaseUser.displayName ?? firebaseUser.email?.split('@').first ?? '',
+          createdAt: DateTime.now(),
+        );
+      }
     } on FirebaseAuthException catch (e) {
+      debugPrint('[FirebaseAuthRepository] FirebaseAuthException code=${e.code} message=${e.message}');
       throw Exception(_authErrorMessage(e.code));
     } catch (e) {
+      debugPrint('[FirebaseAuthRepository] signIn() unexpected error: $e');
       throw Exception('Sign in failed: $e');
     }
   }

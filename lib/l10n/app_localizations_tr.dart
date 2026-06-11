@@ -78,7 +78,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get turkish => 'Türkçe';
 
   @override
-  String get welcomeBack => 'Tekrar hoş geldiniz';
+  String get welcomeBack => 'Hoş geldiniz!';
 
   @override
   String get createAccount => 'Hesabınızı oluşturun';

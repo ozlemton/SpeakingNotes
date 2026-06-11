@@ -35,7 +35,11 @@ class ProfileScreen extends StatelessWidget {
           style: AppTypography.heading3,
         ),
       ),
-      body: BlocBuilder<AuthBloc, AuthState>(
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) context.go('/login');
+        },
+        child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is! AuthAuthenticated) return const SizedBox();
           final user = state.user;
@@ -65,6 +69,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           );
         },
+      ),
       ),
     );
   }

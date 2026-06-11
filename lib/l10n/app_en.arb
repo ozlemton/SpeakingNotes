@@ -46,7 +46,7 @@
   "@english": { "description": "English language option" },
   "turkish": "Turkish",
   "@turkish": { "description": "Turkish language option" },
-  "welcomeBack": "Welcome back",
+  "welcomeBack": "Welcome!",
   "@welcomeBack": { "description": "Subtitle on login screen" },
   "createAccount": "Create your account",
   "@createAccount": { "description": "Subtitle on sign up screen" },

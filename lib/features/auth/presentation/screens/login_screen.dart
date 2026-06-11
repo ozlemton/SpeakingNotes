@@ -44,7 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthError) {
+        debugPrint('[LoginScreen] BlocListener state: $state');
+        if (state is AuthAuthenticated) {
+          debugPrint('[LoginScreen] AuthAuthenticated → navigating to /home');
+          context.go('/home');
+        } else if (state is AuthError) {
+          debugPrint('[LoginScreen] AuthError: ${state.message}');
           setState(() => _errorMessage = state.message);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -53,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         } else if (state is AuthLoading) {
+          debugPrint('[LoginScreen] AuthLoading');
           setState(() => _errorMessage = null);
         }
       },

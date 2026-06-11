@@ -78,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get turkish => 'Turkish';
 
   @override
-  String get welcomeBack => 'Welcome back';
+  String get welcomeBack => 'Welcome!';
 
   @override
   String get createAccount => 'Create your account';
