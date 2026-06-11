@@ -63,8 +63,10 @@ class LocalCategoryRepository implements CategoryRepository {
   @override
   Future<void> deleteCategory(String id) async {
     try {
-      await (db.delete(db.notes)..where((t) => t.categoryId.equals(id))).go();
-      await (db.delete(db.categories)..where((t) => t.id.equals(id))).go();
+      await db.transaction(() async {
+        await (db.delete(db.notes)..where((t) => t.categoryId.equals(id))).go();
+        await (db.delete(db.categories)..where((t) => t.id.equals(id))).go();
+      });
     } catch (e) {
       throw Exception('Failed to delete category from local DB: $e');
     }

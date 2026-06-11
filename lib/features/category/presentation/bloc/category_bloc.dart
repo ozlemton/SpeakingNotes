@@ -75,7 +75,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       await deleteCategory(event.id);
       final categories = await getAllCategories();
       emit(CategoryLoaded(categories, deletedId: event.id));
-      onCategoryDeleted?.call();
+      onCategoryDeleted?.call(); // dispatches LoadAllNotes to NoteBloc
+      add(LoadCategories());
     } catch (e) {
       emit(CategoryError(e.toString()));
     }
