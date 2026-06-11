@@ -13,7 +13,6 @@ import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../note/domain/models/note.dart';
 import '../../../note/presentation/bloc/note_bloc.dart';
@@ -990,12 +989,10 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
   void _toggleRecording(BuildContext context) {
     final noteBloc = context.read<NoteBloc>();
     if (noteBloc.state.isRecording) {
-      debugPrint('[HomeScreen] mic button pressed — stopping recording');
       _speechService.stopListening();
       _timer?.cancel();
       noteBloc.add(StopRecording());
     } else {
-      debugPrint('[HomeScreen] mic button pressed — starting recording, category=${_targetCategory?.name}');
       noteBloc.add(StartRecording());
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
@@ -1003,61 +1000,24 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         context.read<NoteBloc>().add(UpdateRecordingTimer(current + 1));
       });
 
-      if (kTestMode) {
-        final navigator = Navigator.of(context);
-        final targetCategory = _targetCategory!;
-        Future.delayed(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          try {
-            final text = _speechService.generateMockText();
-            debugPrint('[HomeScreen] mock speech result received: "$text"');
-            final note = Note(
-              id: const Uuid().v4(),
-              categoryId: targetCategory.id,
-              content: text,
-              createdAt: DateTime.now(),
-            );
-            debugPrint('[HomeScreen] dispatching CreateNote with content: "$text"');
-            noteBloc.add(CreateNote(note));
-            _timer?.cancel();
-            noteBloc.add(StopRecording());
-            widget.onNoteCreated(targetCategory);
-            navigator.pop();
-          } catch (e) {
-            _timer?.cancel();
-            if (mounted) {
-              noteBloc.add(StopRecording());
-              ScaffoldMessenger.of(navigator.context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote),
-                  backgroundColor: AppColors.error,
-                ),
-              );
-            }
-          }
-        });
-      } else {
-        final targetCategory = _targetCategory!;
-        _speechService.startListening(
-          onResult: (text) {
-            debugPrint('[HomeScreen] speech result received: "$text"');
-            if (text.isEmpty) return;
-            final note = Note(
-              id: const Uuid().v4(),
-              categoryId: targetCategory.id,
-              content: text,
-              createdAt: DateTime.now(),
-            );
-            debugPrint('[HomeScreen] dispatching CreateNote with content: "$text"');
-            context.read<NoteBloc>().add(CreateNote(note));
-            _speechService.stopListening();
-            _timer?.cancel();
-            context.read<NoteBloc>().add(StopRecording());
-            widget.onNoteCreated(targetCategory);
-            Navigator.pop(context);
-          },
-        );
-      }
+      final targetCategory = _targetCategory!;
+      _speechService.startListening(
+        onResult: (text) {
+          if (text.isEmpty) return;
+          final note = Note(
+            id: const Uuid().v4(),
+            categoryId: targetCategory.id,
+            content: text,
+            createdAt: DateTime.now(),
+          );
+          context.read<NoteBloc>().add(CreateNote(note));
+          _speechService.stopListening();
+          _timer?.cancel();
+          context.read<NoteBloc>().add(StopRecording());
+          widget.onNoteCreated(targetCategory);
+          Navigator.pop(context);
+        },
+      );
     }
   }
 

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -40,17 +39,14 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<UserModel> signIn(String email, String password) async {
     try {
-      debugPrint('[FirebaseAuthRepository] signIn() called for: $email');
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      debugPrint('[FirebaseAuthRepository] signIn() success uid: ${credential.user?.uid}');
       final firebaseUser = credential.user!;
       try {
         return await _fetchUserProfile(firebaseUser.uid);
       } catch (e) {
-        debugPrint('[FirebaseAuthRepository] Firestore profile fetch failed, using auth data: $e');
         return UserModel(
           id: firebaseUser.uid,
           email: firebaseUser.email ?? '',
@@ -59,10 +55,8 @@ class FirebaseAuthRepository implements AuthRepository {
         );
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint('[FirebaseAuthRepository] FirebaseAuthException code=${e.code} message=${e.message}');
       throw Exception(_authErrorMessage(e.code));
     } catch (e) {
-      debugPrint('[FirebaseAuthRepository] signIn() unexpected error: $e');
       throw Exception('Sign in failed: $e');
     }
   }
@@ -80,9 +74,7 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<UserModel?> getCurrentUser() async {
     try {
       final firebaseUser = _auth.currentUser;
-      debugPrint('[FirebaseAuthRepository] currentUser: $firebaseUser');
       if (firebaseUser == null) return null;
-      debugPrint('[FirebaseAuthRepository] currentUser email: ${firebaseUser.email}');
       return await _fetchUserProfile(firebaseUser.uid);
     } catch (e) {
       return null;

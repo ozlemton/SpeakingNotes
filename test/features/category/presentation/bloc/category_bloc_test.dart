@@ -97,7 +97,7 @@ void main() {
 
   group('DeleteCategory', () {
     blocTest<CategoryBloc, CategoryState>(
-      'emits [CategoryLoaded] without deleted category',
+      'emits [CategoryLoaded, CategoryLoading, CategoryLoaded] without deleted category',
       build: () {
         when(mockDelete('1')).thenAnswer((_) async {});
         when(mockGetAll()).thenAnswer(
@@ -111,7 +111,30 @@ void main() {
             .having((s) => s.categories, 'categories',
                 isNot(contains(categories.first)))
             .having((s) => s.deletedId, 'deletedId', '1'),
+        isA<CategoryLoading>(),
+        isA<CategoryLoaded>()
+            .having((s) => s.categories, 'categories',
+                isNot(contains(categories.first))),
       ],
     );
+
+    test('calls onCategoryDeleted callback after successful delete', () async {
+      when(mockDelete('1')).thenAnswer((_) async {});
+      when(mockGetAll()).thenAnswer(
+        (_) async => categories.where((c) => c.id != '1').toList(),
+      );
+      var callbackCalled = false;
+      final bloc = CategoryBloc(
+        getAllCategories: mockGetAll,
+        createCategory: mockCreate,
+        updateCategory: mockUpdate,
+        deleteCategory: mockDelete,
+        onCategoryDeleted: () => callbackCalled = true,
+      );
+      bloc.add(DeleteCategory('1'));
+      await Future.delayed(Duration.zero);
+      await bloc.close();
+      expect(callbackCalled, isTrue);
+    });
   });
 }

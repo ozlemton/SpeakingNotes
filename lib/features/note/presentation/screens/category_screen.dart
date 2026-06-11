@@ -9,7 +9,6 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../category/domain/models/category.dart';
 import '../../domain/models/note.dart';
@@ -231,8 +230,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    const ms = 0;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}:${ms.toString().padLeft(2, '0')}';
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}:00';
   }
 
   void _toggleRecording(BuildContext context) {
@@ -249,55 +247,23 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         context.read<NoteBloc>().add(UpdateRecordingTimer(current + 1));
       });
 
-      if (kTestMode) {
-        final navigator = Navigator.of(context);
-        Future.delayed(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          try {
-            final text = _speechService.generateMockText();
-            final note = Note(
-              id: const Uuid().v4(),
-              categoryId: widget.categoryId,
-              content: text,
-              createdAt: DateTime.now(),
-            );
-            noteBloc.add(CreateNote(note));
-            _timer?.cancel();
-            noteBloc.add(StopRecording());
-            widget.onNoteCreated();
-            navigator.pop();
-          } catch (e) {
-            _timer?.cancel();
-            if (mounted) {
-              noteBloc.add(StopRecording());
-              ScaffoldMessenger.of(navigator.context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote),
-                  backgroundColor: AppColors.error,
-                ),
-              );
-            }
-          }
-        });
-      } else {
-        _speechService.startListening(
-          onResult: (text) {
-            if (text.isEmpty) return;
-            final note = Note(
-              id: const Uuid().v4(),
-              categoryId: widget.categoryId,
-              content: text,
-              createdAt: DateTime.now(),
-            );
-            context.read<NoteBloc>().add(CreateNote(note));
-            _speechService.stopListening();
-            _timer?.cancel();
-            context.read<NoteBloc>().add(StopRecording());
-            widget.onNoteCreated();
-            Navigator.pop(context);
-          },
-        );
-      }
+      _speechService.startListening(
+        onResult: (text) {
+          if (text.isEmpty) return;
+          final note = Note(
+            id: const Uuid().v4(),
+            categoryId: widget.categoryId,
+            content: text,
+            createdAt: DateTime.now(),
+          );
+          context.read<NoteBloc>().add(CreateNote(note));
+          _speechService.stopListening();
+          _timer?.cancel();
+          context.read<NoteBloc>().add(StopRecording());
+          widget.onNoteCreated();
+          Navigator.pop(context);
+        },
+      );
     }
   }
 
