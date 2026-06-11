@@ -276,7 +276,10 @@ class _HomeScreenState extends State<HomeScreen> {
             noteBloc.add(SelectCategory(null));
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.categoryDeleted)),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.categoryDeleted),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       },
@@ -406,7 +409,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
                 context.read<CategoryBloc>().add(UpdateCategory(updated));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.categoryUpdated)),
+                  SnackBar(
+                    content: Text(l10n.categoryUpdated),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               }
               Navigator.pop(ctx);
@@ -518,7 +524,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context.read<NoteBloc>().state.selectedCategoryId),
                       );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(AppLocalizations.of(context)!.noteDeleted)),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.noteDeleted),
+                      backgroundColor: Colors.green,
+                    ),
                   );
                 },
                 child: GestureDetector(
@@ -1019,7 +1028,10 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             if (mounted) {
               noteBloc.add(StopRecording());
               ScaffoldMessenger.of(navigator.context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote)),
+                SnackBar(
+                  content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote),
+                  backgroundColor: AppColors.error,
+                ),
               );
             }
           }

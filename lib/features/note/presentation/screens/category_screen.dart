@@ -271,7 +271,10 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
             if (mounted) {
               noteBloc.add(StopRecording());
               ScaffoldMessenger.of(navigator.context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote)),
+                SnackBar(
+                  content: Text(AppLocalizations.of(navigator.context)!.failedToSaveNote),
+                  backgroundColor: AppColors.error,
+                ),
               );
             }
           }
