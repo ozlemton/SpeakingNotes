@@ -157,3 +157,4 @@ class MockDeleteCategoryUseCase extends _i1.Mock
           )
           as _i4.Future<void>);
 }
+

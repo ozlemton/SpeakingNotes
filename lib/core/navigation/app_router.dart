@@ -22,7 +22,7 @@ abstract final class AppRouter {
   }) {
     final notifier = _RouterNotifier(authBloc);
     return GoRouter(
-      initialLocation: '/login',
+      initialLocation: '/splash',
       refreshListenable: notifier,
       routes: [
         GoRoute(

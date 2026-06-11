@@ -11,6 +11,7 @@ class FirebaseCategoryRepository implements CategoryRepository {
   void setUserId(String? userId) => _userId = userId;
 
   CollectionReference get _collection => _firestore.collection('categories');
+  CollectionReference get _notes => _firestore.collection('notes');
 
   @override
   Future<List<Category>> getAllCategories() async {
@@ -50,7 +51,13 @@ class FirebaseCategoryRepository implements CategoryRepository {
   @override
   Future<void> deleteCategory(String id) async {
     try {
-      await _collection.doc(id).delete();
+      final notesSnapshot = await _notes.where('categoryId', isEqualTo: id).get();
+      final batch = _firestore.batch();
+      for (final doc in notesSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      batch.delete(_collection.doc(id));
+      await batch.commit();
     } catch (e) {
       throw Exception('Failed to delete category from Firebase: $e');
     }
