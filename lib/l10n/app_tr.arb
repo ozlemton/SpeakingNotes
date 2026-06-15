@@ -1,13 +1,12 @@
 {
   "@@locale": "tr",
-  "appTitle": "SpeakingNotes",
   "allNotes": "Tüm Notlar",
   "searchNotes": "Notlarda ara...",
   "category": "Kategori",
   "selectCategory": "Kategori Seç",
   "createNewCategory": "Yeni Kategori Oluştur",
   "select": "Seç",
-  "recordingAudio": "Ses Kaydediliyor",
+  "recordingAudio": "Ses Kaydı",
   "noNotesYet": "Henüz not yok. Kaydetmek için mikrofona dokun.",
   "noNotesFound": "Aramanız için not bulunamadı.",
   "noteDeleted": "Not silindi",
@@ -37,7 +36,6 @@
   "holdToEditOrDelete": "Düzenlemek veya silmek için basılı tut",
   "failedToLoadCategories": "Kategoriler yüklenemedi",
   "somethingWentWrong": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
-  "failedToSaveNote": "Not kaydedilemedi. Lütfen tekrar deneyin.",
   "newCategory": "Yeni Kategori",
   "categoryName": "Kategori adı",
   "editCategory": "Kategoriyi Düzenle",
@@ -50,8 +48,6 @@
   },
   "allCategories": "Tüm Kategoriler",
   "create": "Oluştur",
-  "recording": "Kayıt",
-  "audio": "Sesi",
   "deleteNote": "Notu sil",
   "deleteNoteConfirm": "Bu not kalıcı olarak silinecek.",
   "wordCharCount": "{words} kelime · {chars} karakter",
@@ -68,5 +64,6 @@
   "validationEmailInvalid": "Geçerli bir e-posta girin",
   "validationEnterPassword": "Lütfen şifrenizi girin",
   "validationPasswordLength": "Şifre en az 6 karakter olmalıdır",
-  "microphonePermissionRequired": "Not kaydetmek için mikrofon izni gereklidir. Lütfen ayarlardan etkinleştirin."
+  "noteSaved": "Not kaydedildi",
+  "recordingHint": "Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!"
 }

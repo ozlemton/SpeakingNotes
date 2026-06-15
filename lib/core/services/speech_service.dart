@@ -7,6 +7,11 @@ class SpeechService {
   bool _initialized = false;
   bool _isListening = false;
   Function(String)? _onResult;
+  String _localeId = 'tr-TR';
+
+  void setLocale(String languageCode) {
+    _localeId = languageCode == 'en' ? 'en-US' : 'tr-TR';
+  }
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -55,6 +60,7 @@ class SpeechService {
         },
         listenFor: listenFor,
         pauseFor: pauseFor,
+        localeId: _localeId,
       );
     } catch (e) {
       if (kDebugMode) debugPrint('SpeechService.listen failed: $e');

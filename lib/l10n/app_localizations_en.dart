@@ -9,9 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'SpeakingNotes';
-
-  @override
   String get allNotes => 'All Notes';
 
   @override
@@ -121,9 +118,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
-  String get failedToSaveNote => 'Failed to save note. Please try again.';
-
-  @override
   String get newCategory => 'New Category';
 
   @override
@@ -145,12 +139,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get create => 'Create';
-
-  @override
-  String get recording => 'Recording';
-
-  @override
-  String get audio => 'Audio';
 
   @override
   String get deleteNote => 'Delete note';
@@ -187,6 +175,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Password must be at least 6 characters';
 
   @override
-  String get microphonePermissionRequired =>
-      'Microphone permission is required to record notes. Please enable it in settings.';
+  String get noteSaved => 'Note saved';
+
+  @override
+  String get recordingHint =>
+      'After pressing the microphone, please speak slowly and clearly!';
 }

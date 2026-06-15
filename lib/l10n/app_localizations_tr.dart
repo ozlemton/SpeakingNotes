@@ -9,9 +9,6 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'SpeakingNotes';
-
-  @override
   String get allNotes => 'Tüm Notlar';
 
   @override
@@ -30,7 +27,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get select => 'Seç';
 
   @override
-  String get recordingAudio => 'Ses Kaydediliyor';
+  String get recordingAudio => 'Ses Kaydı';
 
   @override
   String get noNotesYet => 'Henüz not yok. Kaydetmek için mikrofona dokun.';
@@ -122,9 +119,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bir şeyler yanlış gitti. Lütfen tekrar deneyin.';
 
   @override
-  String get failedToSaveNote => 'Not kaydedilemedi. Lütfen tekrar deneyin.';
-
-  @override
   String get newCategory => 'Yeni Kategori';
 
   @override
@@ -146,12 +140,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get create => 'Oluştur';
-
-  @override
-  String get recording => 'Kayıt';
-
-  @override
-  String get audio => 'Sesi';
 
   @override
   String get deleteNote => 'Notu sil';
@@ -187,6 +175,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get validationPasswordLength => 'Şifre en az 6 karakter olmalıdır';
 
   @override
-  String get microphonePermissionRequired =>
-      'Not kaydetmek için mikrofon izni gereklidir. Lütfen ayarlardan etkinleştirin.';
+  String get noteSaved => 'Not kaydedildi';
+
+  @override
+  String get recordingHint =>
+      'Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!';
 }

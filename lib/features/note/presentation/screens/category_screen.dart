@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/speech_service.dart';
@@ -136,14 +138,11 @@ class _NoteCard extends StatelessWidget {
 
   const _NoteCard({required this.note});
 
-  String get _formattedDate {
-    final d = note.createdAt;
-    return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}  '
-        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final formattedDate =
+        DateFormat('dd MMM yyyy  HH:mm', locale).format(note.createdAt);
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.w),
@@ -182,7 +181,7 @@ class _NoteCard extends StatelessWidget {
                       .copyWith(fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 4.h),
-                Text(_formattedDate, style: AppTypography.caption),
+                Text(formattedDate, style: AppTypography.caption),
               ],
             ),
           ),
@@ -208,17 +207,31 @@ class _RecordingBottomSheet extends StatefulWidget {
 class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
   final SpeechService _speechService = getIt<SpeechService>();
   Timer? _timer;
+  Timer? _hintTimer;
   late NoteBloc _noteBloc;
+  String _transcribedText = '';
+  String _currentText = '';
+  bool _hintVisible = true;
+
+  String get _displayText {
+    if (_transcribedText.isEmpty) return _currentText;
+    if (_currentText.isEmpty) return _transcribedText;
+    return '$_transcribedText $_currentText';
+  }
 
   @override
   void initState() {
     super.initState();
     _noteBloc = context.read<NoteBloc>();
+    _hintTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _hintVisible = false);
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _hintTimer?.cancel();
     _speechService.stopListening();
     if (_noteBloc.state.isRecording) {
       _noteBloc.add(StopRecording());
@@ -230,7 +243,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}:00';
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   void _toggleRecording(BuildContext context) {
@@ -239,7 +252,31 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
       _speechService.stopListening();
       _timer?.cancel();
       noteBloc.add(StopRecording());
+
+      final fullText = _displayText.trim();
+      if (fullText.isNotEmpty) {
+        noteBloc.add(CreateNote(Note(
+          id: const Uuid().v4(),
+          categoryId: widget.categoryId,
+          content: fullText,
+          createdAt: DateTime.now(),
+        )));
+        final l10n = AppLocalizations.of(context)!;
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.pop(context);
+        widget.onNoteCreated();
+        messenger.showSnackBar(SnackBar(
+          content: Text(l10n.noteSaved),
+          backgroundColor: Colors.green,
+        ));
+      } else {
+        Navigator.pop(context);
+      }
     } else {
+      setState(() {
+        _transcribedText = '';
+        _currentText = '';
+      });
       noteBloc.add(StartRecording());
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
@@ -249,19 +286,15 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
 
       _speechService.startListening(
         onResult: (text) {
-          if (text.isEmpty) return;
-          final note = Note(
-            id: const Uuid().v4(),
-            categoryId: widget.categoryId,
-            content: text,
-            createdAt: DateTime.now(),
-          );
-          context.read<NoteBloc>().add(CreateNote(note));
-          _speechService.stopListening();
-          _timer?.cancel();
-          context.read<NoteBloc>().add(StopRecording());
-          widget.onNoteCreated();
-          Navigator.pop(context);
+          if (!mounted) return;
+          setState(() {
+            if (text.length < _currentText.length) {
+              _transcribedText = _displayText;
+              _currentText = text;
+            } else {
+              _currentText = text;
+            }
+          });
         },
       );
     }
@@ -296,26 +329,12 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${AppLocalizations.of(context)!.recording} ',
-                          style: TextStyle(
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        TextSpan(
-                          text: AppLocalizations.of(context)!.audio,
-                          style: TextStyle(
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    AppLocalizations.of(context)!.recordingAudio,
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
                     ),
                   ),
                   GestureDetector(
@@ -332,42 +351,102 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                   ),
                 ],
               ),
-              SizedBox(height: 40.h),
-              _WaveformWidget(isAnimating: state.isRecording),
-              SizedBox(height: 32.h),
-              Text(
-                _timerDisplay(state.recordingSeconds),
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 4,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              SizedBox(height: 40.h),
-              GestureDetector(
-                onTap: () => _toggleRecording(context),
-                child: Container(
-                  width: 80.r,
-                  height: 80.r,
-                  decoration: BoxDecoration(
-                    color: state.isRecording ? AppColors.error : AppColors.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            (state.isRecording ? AppColors.error : AppColors.primary)
-                                .withValues(alpha: 0.4),
-                        blurRadius: 24,
-                        spreadRadius: 4,
-                      ),
+              SizedBox(height: 16.h),
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 600),
+                crossFadeState: _hintVisible
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                layoutBuilder: (topChild, topChildKey, bottomChild, bottomChildKey) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Align(key: bottomChildKey, alignment: Alignment.topCenter, child: bottomChild),
+                      Align(key: topChildKey, alignment: Alignment.topCenter, child: topChild),
                     ],
+                  );
+                },
+                firstChild: SizedBox(
+                  width: double.infinity,
+                  height: 260.h,
+                  child: Center(
+                    child: Text(
+                      AppLocalizations.of(context)!.recordingHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w500,
+                        height: 1.6,
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    state.isRecording ? Icons.stop : Icons.mic,
-                    color: AppColors.white,
-                    size: 36.r,
-                  ),
+                ),
+                secondChild: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _WaveformWidget(isAnimating: state.isRecording),
+                    SizedBox(height: 20.h),
+                    if (_displayText.isNotEmpty) ...[
+                      Container(
+                        width: double.infinity,
+                        constraints: BoxConstraints(maxHeight: 80.h),
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        child: SingleChildScrollView(
+                          reverse: true,
+                          child: Text(
+                            _displayText,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: AppColors.textPrimary,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                    ],
+                    Text(
+                      _timerDisplay(state.recordingSeconds),
+                      style: TextStyle(
+                        fontSize: 32.sp,
+                        fontWeight: FontWeight.w300,
+                        letterSpacing: 4,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 40.h, bottom: 4.h),
+                      child: GestureDetector(
+                        onTap: () => _toggleRecording(context),
+                        child: Container(
+                          width: 80.r,
+                          height: 80.r,
+                          decoration: BoxDecoration(
+                            color: state.isRecording
+                                ? AppColors.error
+                                : AppColors.primary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: (state.isRecording
+                                        ? AppColors.error
+                                        : AppColors.primary)
+                                    .withValues(alpha: 0.4),
+                                blurRadius: 24,
+                                spreadRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            state.isRecording ? Icons.stop : Icons.mic,
+                            color: AppColors.white,
+                            size: 36.r,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

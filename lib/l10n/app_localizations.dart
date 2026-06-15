@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
-  /// The application title
-  ///
-  /// In en, this message translates to:
-  /// **'SpeakingNotes'**
-  String get appTitle;
-
   /// Label for showing all notes across categories
   ///
   /// In en, this message translates to:
@@ -320,12 +314,6 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get somethingWentWrong;
 
-  /// Error message when note save fails
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to save note. Please try again.'**
-  String get failedToSaveNote;
-
   /// Dialog title for creating a new category
   ///
   /// In en, this message translates to:
@@ -367,18 +355,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create'**
   String get create;
-
-  /// First word of the recording sheet title (styled in primary color)
-  ///
-  /// In en, this message translates to:
-  /// **'Recording'**
-  String get recording;
-
-  /// Second word of the recording sheet title
-  ///
-  /// In en, this message translates to:
-  /// **'Audio'**
-  String get audio;
 
   /// Dialog title when deleting a note
   ///
@@ -440,11 +416,17 @@ abstract class AppLocalizations {
   /// **'Password must be at least 6 characters'**
   String get validationPasswordLength;
 
-  /// Snackbar shown when mic permission is denied or speech recognition unavailable
+  /// Snackbar shown after note is saved from recording
   ///
   /// In en, this message translates to:
-  /// **'Microphone permission is required to record notes. Please enable it in settings.'**
-  String get microphonePermissionRequired;
+  /// **'Note saved'**
+  String get noteSaved;
+
+  /// Hint shown when the recording bottom sheet opens
+  ///
+  /// In en, this message translates to:
+  /// **'After pressing the microphone, please speak slowly and clearly!'**
+  String get recordingHint;
 }
 
 class _AppLocalizationsDelegate

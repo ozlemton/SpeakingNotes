@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -17,15 +18,6 @@ class NoteDetailScreen extends StatelessWidget {
   final Note note;
 
   const NoteDetailScreen({super.key, required this.note});
-
-  String get _formattedDate {
-    final d = note.createdAt;
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return '${months[d.month - 1]} ${d.day}, ${d.year}';
-  }
 
   int get _wordCount =>
       note.content.trim().isEmpty ? 0 : note.content.trim().split(RegExp(r'\s+')).length;
@@ -73,6 +65,9 @@ class NoteDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categoryName = _resolveCategoryName(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final formattedDate =
+        DateFormat('dd MMM yyyy  HH:mm', locale).format(note.createdAt);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -84,7 +79,7 @@ class NoteDetailScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios_new,
               color: AppColors.primary, size: 20.r),
         ),
-        title: Text(_formattedDate, style: AppTypography.heading3),
+        title: Text(formattedDate, style: AppTypography.heading3),
         actions: [
           IconButton(
             onPressed: () => _confirmDelete(context),
@@ -119,17 +114,26 @@ class NoteDetailScreen extends StatelessWidget {
                     if (categoryName != null) ...[
                       Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 4.h),
+                            horizontal: 16.w, vertical: 6.h),
                         decoration: BoxDecoration(
                           color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(20.r),
                         ),
-                        child: Text(
-                          categoryName,
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.folder_outlined,
+                                color: AppColors.primary, size: 16.r),
+                            SizedBox(width: 6.w),
+                            Text(
+                              categoryName,
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(height: AppSpacing.md),

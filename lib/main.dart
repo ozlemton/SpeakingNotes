@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection.dart';
 import 'core/navigation/app_router.dart';
+import 'core/services/speech_service.dart';
 import 'core/services/sync_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -32,10 +34,13 @@ Future<void> main() async {
     firebaseFailed = true;
   }
 
+  await initializeDateFormatting('tr');
+  await initializeDateFormatting('en');
   await setupDependencies();
 
   final prefs = await SharedPreferences.getInstance();
   final savedLanguage = prefs.getString('language') ?? 'en';
+  getIt<SpeechService>().setLocale(savedLanguage);
 
   final router = AppRouter.create(
     authBloc: getIt<AuthBloc>(),

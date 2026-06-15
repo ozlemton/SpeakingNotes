@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/services/speech_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -209,7 +210,10 @@ class _LangButton extends StatelessWidget {
     return GestureDetector(
       onTap: selected
           ? null
-          : () => context.read<AuthBloc>().add(UpdateLanguage(code)),
+          : () {
+              context.read<AuthBloc>().add(UpdateLanguage(code));
+              getIt<SpeechService>().setLocale(code);
+            },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
