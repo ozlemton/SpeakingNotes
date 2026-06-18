@@ -433,6 +433,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After pressing the microphone, please speak slowly and clearly!'**
   String get recordingHint;
+
+  /// Label for the speech-to-text language selector on the profile screen
+  ///
+  /// In en, this message translates to:
+  /// **'Speech Language'**
+  String get speechLanguage;
 }
 
 class _AppLocalizationsDelegate

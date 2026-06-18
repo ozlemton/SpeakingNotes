@@ -183,4 +183,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get recordingHint =>
       'Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!';
+
+  @override
+  String get speechLanguage => 'Konuşma Dili';
 }

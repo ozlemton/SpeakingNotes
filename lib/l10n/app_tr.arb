@@ -66,5 +66,6 @@
   "validationPasswordLength": "Şifre en az 6 karakter olmalıdır",
   "noteSaved": "Not kaydedildi",
   "noteUpdated": "Not güncellendi",
-  "recordingHint": "Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!"
+  "recordingHint": "Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!",
+  "speechLanguage": "Konuşma Dili"
 }

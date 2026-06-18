@@ -122,5 +122,7 @@
   "noteUpdated": "Note updated",
   "@noteUpdated": { "description": "Snackbar shown after note content is edited and saved" },
   "recordingHint": "After pressing the microphone, please speak slowly and clearly!",
-  "@recordingHint": { "description": "Hint shown when the recording bottom sheet opens" }
+  "@recordingHint": { "description": "Hint shown when the recording bottom sheet opens" },
+  "speechLanguage": "Speech Language",
+  "@speechLanguage": { "description": "Label for the speech-to-text language selector on the profile screen" }
 }

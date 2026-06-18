@@ -9,8 +9,12 @@ class SpeechService {
   Function(String)? _onResult;
   String _localeId = 'tr-TR';
 
-  void setLocale(String languageCode) {
-    _localeId = languageCode == 'en' ? 'en-US' : 'tr-TR';
+  void setLocale(String localeCode) {
+    if (localeCode.contains('-')) {
+      _localeId = localeCode;
+    } else {
+      _localeId = localeCode == 'en' ? 'en-US' : 'tr-TR';
+    }
   }
 
   Future<void> initialize() async {

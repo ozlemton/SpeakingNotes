@@ -20,11 +20,9 @@ class RepositoryCategoryService implements CategoryRepository {
   @override
   Future<void> createCategory(Category category) async {
     await _local.createCategory(category);
-    try {
-      await _firebase.createCategory(category);
-    } catch (e) {
+    await _firebase.createCategory(category).catchError((e) {
       if (kDebugMode) debugPrint('Firebase createCategory failed (saved locally): $e');
-    }
+    });
   }
 
   @override
@@ -64,11 +62,9 @@ class RepositoryNoteService implements NoteRepository {
   @override
   Future<void> createNote(Note note) async {
     await _local.createNote(note);
-    try {
-      await _firebase.createNote(note);
-    } catch (e) {
+    await _firebase.createNote(note).catchError((e) {
       if (kDebugMode) debugPrint('Firebase createNote failed (saved locally): $e');
-    }
+    });
   }
 
   @override

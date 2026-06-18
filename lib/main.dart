@@ -42,7 +42,8 @@ Future<void> main() async {
 
   final prefs = await SharedPreferences.getInstance();
   final savedLanguage = prefs.getString('language') ?? 'en';
-  getIt<SpeechService>().setLocale(savedLanguage);
+  final savedSpeechLanguage = prefs.getString('speech_language');
+  getIt<SpeechService>().setLocale(savedSpeechLanguage ?? savedLanguage);
   unawaited(getIt<SpeechService>().initialize());
 
   final router = AppRouter.create(

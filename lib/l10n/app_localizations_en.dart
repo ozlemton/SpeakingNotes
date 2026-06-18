@@ -183,4 +183,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recordingHint =>
       'After pressing the microphone, please speak slowly and clearly!';
+
+  @override
+  String get speechLanguage => 'Speech Language';
 }

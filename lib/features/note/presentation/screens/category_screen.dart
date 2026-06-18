@@ -206,6 +206,7 @@ class _RecordingBottomSheet extends StatefulWidget {
 
 class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
   final SpeechService _speechService = getIt<SpeechService>();
+  final _textScrollController = ScrollController();
   Timer? _timer;
   Timer? _hintTimer;
   late NoteBloc _noteBloc;
@@ -230,6 +231,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
 
   @override
   void dispose() {
+    _textScrollController.dispose();
     _timer?.cancel();
     _hintTimer?.cancel();
     _speechService.stopListening();
@@ -237,6 +239,18 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
       _noteBloc.add(StopRecording());
     }
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_textScrollController.hasClients) {
+        _textScrollController.animateTo(
+          _textScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   String _timerDisplay(int seconds) {
@@ -295,6 +309,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
               _currentText = text;
             }
           });
+          _scrollToBottom();
         },
       );
     }
@@ -390,12 +405,18 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
                     if (_displayText.isNotEmpty) ...[
                       Container(
                         width: double.infinity,
-                        constraints: BoxConstraints(maxHeight: 80.h),
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        constraints: BoxConstraints(maxHeight: 140.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
                         child: SingleChildScrollView(
-                          reverse: true,
+                          controller: _textScrollController,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 10.h),
                           child: Text(
                             _displayText,
+                            softWrap: true,
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: AppColors.textPrimary,
