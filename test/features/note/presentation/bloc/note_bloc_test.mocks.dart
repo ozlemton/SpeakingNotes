@@ -17,6 +17,8 @@ import 'package:speaking_notes/features/note/domain/usecases/get_all_notes_useca
     as _i3;
 import 'package:speaking_notes/features/note/domain/usecases/get_notes_by_category_usecase.dart'
     as _i6;
+import 'package:speaking_notes/features/note/domain/usecases/update_note_usecase.dart'
+    as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -101,6 +103,35 @@ class MockGetNotesByCategoryUseCase extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockCreateNoteUseCase extends _i1.Mock implements _i7.CreateNoteUseCase {
   MockCreateNoteUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.NoteRepository get repository =>
+      (super.noSuchMethod(
+            Invocation.getter(#repository),
+            returnValue: _FakeNoteRepository_0(
+              this,
+              Invocation.getter(#repository),
+            ),
+          )
+          as _i2.NoteRepository);
+
+  @override
+  _i4.Future<void> call(_i5.Note? note) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [note]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [UpdateNoteUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockUpdateNoteUseCase extends _i1.Mock implements _i9.UpdateNoteUseCase {
+  MockUpdateNoteUseCase() {
     _i1.throwOnMissingStub(this);
   }
 

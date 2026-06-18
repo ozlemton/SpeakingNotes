@@ -422,6 +422,12 @@ abstract class AppLocalizations {
   /// **'Note saved'**
   String get noteSaved;
 
+  /// Snackbar shown after note content is edited and saved
+  ///
+  /// In en, this message translates to:
+  /// **'Note updated'**
+  String get noteUpdated;
+
   /// Hint shown when the recording bottom sheet opens
   ///
   /// In en, this message translates to:

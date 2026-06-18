@@ -119,6 +119,8 @@
   "@validationPasswordLength": { "description": "Validation error when password is too short" },
   "noteSaved": "Note saved",
   "@noteSaved": { "description": "Snackbar shown after note is saved from recording" },
+  "noteUpdated": "Note updated",
+  "@noteUpdated": { "description": "Snackbar shown after note content is edited and saved" },
   "recordingHint": "After pressing the microphone, please speak slowly and clearly!",
   "@recordingHint": { "description": "Hint shown when the recording bottom sheet opens" }
 }

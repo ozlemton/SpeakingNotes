@@ -72,6 +72,16 @@ class RepositoryNoteService implements NoteRepository {
   }
 
   @override
+  Future<void> updateNote(Note note) async {
+    await _local.updateNote(note);
+    try {
+      await _firebase.updateNote(note);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Firebase updateNote failed (updated locally): $e');
+    }
+  }
+
+  @override
   Future<void> deleteNote(String id) async {
     await _local.deleteNote(id);
     try {

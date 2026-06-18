@@ -14,24 +14,89 @@ import '../../domain/models/note.dart';
 import '../bloc/note_bloc.dart';
 import '../bloc/note_event.dart';
 
-class NoteDetailScreen extends StatelessWidget {
+class NoteDetailScreen extends StatefulWidget {
   final Note note;
 
   const NoteDetailScreen({super.key, required this.note});
 
-  int get _wordCount =>
-      note.content.trim().isEmpty ? 0 : note.content.trim().split(RegExp(r'\s+')).length;
+  @override
+  State<NoteDetailScreen> createState() => _NoteDetailScreenState();
+}
 
-  int get _charCount => note.content.length;
+class _NoteDetailScreenState extends State<NoteDetailScreen> {
+  late Note _note;
+  bool _isEditing = false;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _note = widget.note;
+    _controller = TextEditingController(text: _note.content);
+    _controller.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String get _currentContent => _isEditing ? _controller.text : _note.content;
+
+  int get _wordCount =>
+      _currentContent.trim().isEmpty
+          ? 0
+          : _currentContent.trim().split(RegExp(r'\s+')).length;
+
+  int get _charCount => _currentContent.length;
 
   String? _resolveCategoryName(BuildContext context) {
     final state = context.read<CategoryBloc>().state;
     if (state is CategoryLoaded) {
       try {
-        return state.categories.firstWhere((c) => c.id == note.categoryId).name;
+        return state.categories.firstWhere((c) => c.id == _note.categoryId).name;
       } catch (_) {}
     }
     return null;
+  }
+
+  void _startEditing() {
+    setState(() {
+      _controller.text = _note.content;
+      _isEditing = true;
+    });
+  }
+
+  void _cancelEditing() {
+    setState(() {
+      _controller.text = _note.content;
+      _isEditing = false;
+    });
+  }
+
+  void _saveEdit(BuildContext context) {
+    final newContent = _controller.text.trim();
+    if (newContent.isEmpty || newContent == _note.content) {
+      setState(() => _isEditing = false);
+      return;
+    }
+    final updatedNote = Note(
+      id: _note.id,
+      categoryId: _note.categoryId,
+      userId: _note.userId,
+      content: newContent,
+      createdAt: _note.createdAt,
+    );
+    context.read<NoteBloc>().add(UpdateNote(updatedNote));
+    setState(() {
+      _note = updatedNote;
+      _isEditing = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(AppLocalizations.of(context)!.noteUpdated),
+      backgroundColor: Colors.green,
+    ));
   }
 
   void _confirmDelete(BuildContext context) {
@@ -51,7 +116,7 @@ class NoteDetailScreen extends StatelessWidget {
             onPressed: () {
               Navigator.pop(dialogCtx);
               context.read<NoteBloc>().add(
-                    DeleteNote(note.id, categoryId: note.categoryId),
+                    DeleteNote(_note.id, categoryId: _note.categoryId),
                   );
               context.pop();
             },
@@ -67,7 +132,7 @@ class NoteDetailScreen extends StatelessWidget {
     final categoryName = _resolveCategoryName(context);
     final locale = Localizations.localeOf(context).languageCode;
     final formattedDate =
-        DateFormat('dd MMM yyyy  HH:mm', locale).format(note.createdAt);
+        DateFormat('dd MMM yyyy  HH:mm', locale).format(_note.createdAt);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -81,11 +146,28 @@ class NoteDetailScreen extends StatelessWidget {
         ),
         title: Text(formattedDate, style: AppTypography.heading3),
         actions: [
-          IconButton(
-            onPressed: () => _confirmDelete(context),
-            icon: Icon(Icons.delete_outline,
-                color: AppColors.error, size: 22.r),
-          ),
+          if (_isEditing) ...[
+            IconButton(
+              onPressed: _cancelEditing,
+              icon: Icon(Icons.close,
+                  color: AppColors.textSecondary, size: 22.r),
+            ),
+            IconButton(
+              onPressed: () => _saveEdit(context),
+              icon: Icon(Icons.check, color: AppColors.primary, size: 22.r),
+            ),
+          ] else ...[
+            IconButton(
+              onPressed: _startEditing,
+              icon: Icon(Icons.edit_outlined,
+                  color: AppColors.primary, size: 22.r),
+            ),
+            IconButton(
+              onPressed: () => _confirmDelete(context),
+              icon: Icon(Icons.delete_outline,
+                  color: AppColors.error, size: 22.r),
+            ),
+          ],
         ],
       ),
       body: Padding(
@@ -140,12 +222,26 @@ class NoteDetailScreen extends StatelessWidget {
                     ],
                     Expanded(
                       child: SingleChildScrollView(
-                        child: Text(
-                          note.content,
-                          style: AppTypography.body1.copyWith(
-                            height: 1.65,
-                          ),
-                        ),
+                        child: _isEditing
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEEEEFD),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: TextFormField(
+                                  controller: _controller,
+                                  maxLines: null,
+                                  style: AppTypography.body1.copyWith(height: 1.65),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(16.r),
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                _note.content,
+                                style: AppTypography.body1.copyWith(height: 1.65),
+                              ),
                       ),
                     ),
                   ],

@@ -178,6 +178,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteSaved => 'Note saved';
 
   @override
+  String get noteUpdated => 'Note updated';
+
+  @override
   String get recordingHint =>
       'After pressing the microphone, please speak slowly and clearly!';
 }

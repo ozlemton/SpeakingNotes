@@ -56,6 +56,15 @@ class FirebaseNoteRepository implements NoteRepository {
   }
 
   @override
+  Future<void> updateNote(Note note) async {
+    try {
+      await _collection.doc(note.id).update({'content': note.content});
+    } catch (e) {
+      throw Exception('Failed to update note in Firebase: $e');
+    }
+  }
+
+  @override
   Future<void> deleteNote(String id) async {
     try {
       await _collection.doc(id).delete();

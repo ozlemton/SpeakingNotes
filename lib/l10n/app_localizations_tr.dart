@@ -178,6 +178,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get noteSaved => 'Not kaydedildi';
 
   @override
+  String get noteUpdated => 'Not güncellendi';
+
+  @override
   String get recordingHint =>
       'Mikrofona bastıktan sonra lütfen yavaş ve net konuşun!';
 }

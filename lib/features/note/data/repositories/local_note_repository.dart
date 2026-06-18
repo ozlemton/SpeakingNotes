@@ -74,6 +74,16 @@ class LocalNoteRepository implements NoteRepository {
   }
 
   @override
+  Future<void> updateNote(domain.Note note) async {
+    try {
+      await (db.update(db.notes)..where((t) => t.id.equals(note.id)))
+          .write(NotesCompanion(content: Value(note.content)));
+    } catch (e) {
+      throw Exception('Failed to update note in local DB: $e');
+    }
+  }
+
+  @override
   Future<void> deleteNote(String id) async {
     try {
       await (db.delete(db.notes)..where((t) => t.id.equals(id))).go();

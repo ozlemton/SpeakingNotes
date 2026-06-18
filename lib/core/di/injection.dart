@@ -25,6 +25,7 @@ import '../../features/note/domain/usecases/create_note_usecase.dart';
 import '../../features/note/domain/usecases/delete_note_usecase.dart';
 import '../../features/note/domain/usecases/get_all_notes_usecase.dart';
 import '../../features/note/domain/usecases/get_notes_by_category_usecase.dart';
+import '../../features/note/domain/usecases/update_note_usecase.dart';
 import '../../features/note/presentation/bloc/note_bloc.dart';
 import '../../features/note/presentation/bloc/note_event.dart';
 import '../services/app_database.dart';
@@ -123,6 +124,9 @@ Future<void> setupDependencies() async {
   getIt.registerFactory<CreateNoteUseCase>(
     () => CreateNoteUseCase(getIt<NoteRepository>()),
   );
+  getIt.registerFactory<UpdateNoteUseCase>(
+    () => UpdateNoteUseCase(getIt<NoteRepository>()),
+  );
   getIt.registerFactory<DeleteNoteUseCase>(
     () => DeleteNoteUseCase(getIt<NoteRepository>()),
   );
@@ -132,6 +136,7 @@ Future<void> setupDependencies() async {
       getAllNotes: getIt<GetAllNotesUseCase>(),
       getNotesByCategory: getIt<GetNotesByCategoryUseCase>(),
       createNote: getIt<CreateNoteUseCase>(),
+      updateNote: getIt<UpdateNoteUseCase>(),
       deleteNote: getIt<DeleteNoteUseCase>(),
     ),
   );

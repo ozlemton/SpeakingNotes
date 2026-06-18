@@ -7,6 +7,7 @@ import 'package:speaking_notes/features/note/domain/usecases/create_note_usecase
 import 'package:speaking_notes/features/note/domain/usecases/delete_note_usecase.dart';
 import 'package:speaking_notes/features/note/domain/usecases/get_all_notes_usecase.dart';
 import 'package:speaking_notes/features/note/domain/usecases/get_notes_by_category_usecase.dart';
+import 'package:speaking_notes/features/note/domain/usecases/update_note_usecase.dart';
 import 'package:speaking_notes/features/note/presentation/bloc/note_bloc.dart';
 import 'package:speaking_notes/features/note/presentation/bloc/note_event.dart';
 import 'package:speaking_notes/features/note/presentation/bloc/note_state.dart';
@@ -17,12 +18,14 @@ import 'note_bloc_test.mocks.dart';
   GetAllNotesUseCase,
   GetNotesByCategoryUseCase,
   CreateNoteUseCase,
+  UpdateNoteUseCase,
   DeleteNoteUseCase,
 ])
 void main() {
   late MockGetAllNotesUseCase mockGetAll;
   late MockGetNotesByCategoryUseCase mockGetByCategory;
   late MockCreateNoteUseCase mockCreate;
+  late MockUpdateNoteUseCase mockUpdate;
   late MockDeleteNoteUseCase mockDelete;
 
   final notes = [
@@ -41,6 +44,7 @@ void main() {
         getAllNotes: mockGetAll,
         getNotesByCategory: mockGetByCategory,
         createNote: mockCreate,
+        updateNote: mockUpdate,
         deleteNote: mockDelete,
       );
 
@@ -48,6 +52,7 @@ void main() {
     mockGetAll = MockGetAllNotesUseCase();
     mockGetByCategory = MockGetNotesByCategoryUseCase();
     mockCreate = MockCreateNoteUseCase();
+    mockUpdate = MockUpdateNoteUseCase();
     mockDelete = MockDeleteNoteUseCase();
   });
 

@@ -16,6 +16,11 @@ class CreateNote extends NoteEvent {
   CreateNote(this.note);
 }
 
+class UpdateNote extends NoteEvent {
+  final Note note;
+  UpdateNote(this.note);
+}
+
 class DeleteNote extends NoteEvent {
   final String id;
   final String? categoryId;

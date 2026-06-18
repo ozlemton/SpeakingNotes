@@ -4,6 +4,7 @@ import '../../domain/usecases/create_note_usecase.dart';
 import '../../domain/usecases/delete_note_usecase.dart';
 import '../../domain/usecases/get_all_notes_usecase.dart';
 import '../../domain/usecases/get_notes_by_category_usecase.dart';
+import '../../domain/usecases/update_note_usecase.dart';
 import 'note_event.dart';
 import 'note_state.dart';
 
@@ -11,17 +12,20 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   final GetAllNotesUseCase getAllNotes;
   final GetNotesByCategoryUseCase getNotesByCategory;
   final CreateNoteUseCase createNote;
+  final UpdateNoteUseCase updateNote;
   final DeleteNoteUseCase deleteNote;
 
   NoteBloc({
     required this.getAllNotes,
     required this.getNotesByCategory,
     required this.createNote,
+    required this.updateNote,
     required this.deleteNote,
   }) : super(const NoteState()) {
     on<LoadAllNotes>(_onLoadAllNotes);
     on<LoadNotes>(_onLoadNotes);
     on<CreateNote>(_onCreateNote);
+    on<UpdateNote>(_onUpdateNote);
     on<DeleteNote>(_onDeleteNote);
     on<SelectCategory>(_onSelectCategory);
     on<StartRecording>(_onStartRecording);
@@ -62,6 +66,19 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     emit(state.copyWith(status: NoteStatus.loading));
     try {
       await createNote(event.note);
+    } catch (e) {
+      emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateNote(
+    UpdateNote event,
+    Emitter<NoteState> emit,
+  ) async {
+    try {
+      await updateNote(event.note);
+      final notes = await getNotesByCategory(event.note.categoryId);
+      emit(state.copyWith(status: NoteStatus.loaded, notes: notes));
     } catch (e) {
       emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
