@@ -470,7 +470,6 @@ class _WaveformWidgetState extends State<_WaveformWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final _random = Random();
-  List<double> _bars = List.filled(28, 0.1);
 
   @override
   void initState() {
@@ -478,14 +477,7 @@ class _WaveformWidgetState extends State<_WaveformWidget>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 180),
-    )..addListener(() {
-        if (widget.isAnimating && mounted) {
-          setState(() {
-            _bars =
-                List.generate(28, (_) => 0.1 + _random.nextDouble() * 0.9);
-          });
-        }
-      });
+    );
     if (widget.isAnimating) _controller.repeat();
   }
 
@@ -496,7 +488,7 @@ class _WaveformWidgetState extends State<_WaveformWidget>
       _controller.repeat();
     } else if (!widget.isAnimating && oldWidget.isAnimating) {
       _controller.stop();
-      setState(() => _bars = List.filled(28, 0.1));
+      _controller.reset();
     }
   }
 
@@ -508,24 +500,71 @@ class _WaveformWidgetState extends State<_WaveformWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 72.h,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _bars
-            .map((h) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 4.w,
-                  height: (8 + h * 60).h,
-                  margin: EdgeInsets.symmetric(horizontal: 2.w),
-                  decoration: BoxDecoration(
-                    color:
-                        AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
-                    borderRadius: BorderRadius.circular(3.r),
-                  ),
-                ))
-            .toList(),
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final bars = widget.isAnimating
+            ? List.generate(28, (_) => 0.1 + _random.nextDouble() * 0.9)
+            : List.filled(28, 0.1);
+        return SizedBox(
+          height: 72.h,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _WaveformPainter(
+              bars: bars,
+              barWidth: 4.w,
+              spacing: 4.w,
+              color: AppColors.primary,
+              minBarHeight: 8.h,
+              maxExtraHeight: 60.h,
+              borderRadius: 3.r,
+            ),
+          ),
+        );
+      },
     );
   }
+}
+
+class _WaveformPainter extends CustomPainter {
+  final List<double> bars;
+  final double barWidth;
+  final double spacing;
+  final Color color;
+  final double minBarHeight;
+  final double maxExtraHeight;
+  final double borderRadius;
+
+  _WaveformPainter({
+    required this.bars,
+    required this.barWidth,
+    required this.spacing,
+    required this.color,
+    required this.minBarHeight,
+    required this.maxExtraHeight,
+    required this.borderRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final totalWidth = bars.length * (barWidth + spacing) - spacing;
+    double x = (size.width - totalWidth) / 2;
+    for (final h in bars) {
+      final barHeight = minBarHeight + h * maxExtraHeight;
+      final paint = Paint()
+        ..color = color.withValues(alpha: 0.3 + h * 0.7)
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(x, (size.height - barHeight) / 2, barWidth, barHeight),
+          Radius.circular(borderRadius),
+        ),
+        paint,
+      );
+      x += barWidth + spacing;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_WaveformPainter oldDelegate) => true;
 }

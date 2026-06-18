@@ -35,7 +35,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _searchQuery = '';
+  final _searchNotifier = ValueNotifier<String>('');
   final _searchController = TextEditingController();
 
   @override
@@ -50,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _searchNotifier.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -246,20 +247,23 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: TextField(
         controller: _searchController,
-        onChanged: (v) => setState(() => _searchQuery = v),
+        onChanged: (v) => _searchNotifier.value = v,
         decoration: InputDecoration(
           hintText: AppLocalizations.of(context)!.searchNotes,
           hintStyle: TextStyle(color: AppColors.iconSecondary, fontSize: 14.sp),
           prefixIcon: Icon(Icons.search, color: AppColors.iconSecondary, size: 20.r),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    _searchController.clear();
-                    setState(() => _searchQuery = '');
-                  },
-                  child: Icon(Icons.close, color: AppColors.iconSecondary, size: 20.r),
-                )
-              : null,
+          suffixIcon: ValueListenableBuilder<String>(
+            valueListenable: _searchNotifier,
+            builder: (_, query, __) => query.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      _searchController.clear();
+                      _searchNotifier.value = '';
+                    },
+                    child: Icon(Icons.close, color: AppColors.iconSecondary, size: 20.r),
+                  )
+                : const SizedBox.shrink(),
+          ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 14.h),
         ),
@@ -269,6 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFilterChips() {
     return BlocConsumer<CategoryBloc, CategoryState>(
+      listenWhen: (prev, next) =>
+          next is CategoryLoaded && next.deletedId != null,
+      buildWhen: (prev, next) =>
+          prev.runtimeType != next.runtimeType ||
+          (prev is CategoryLoaded &&
+           next is CategoryLoaded &&
+           prev.categories != next.categories),
       listener: (context, state) {
         if (state is CategoryLoaded && state.deletedId != null) {
           final noteBloc = context.read<NoteBloc>();
@@ -449,97 +460,103 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNotesList() {
-    return BlocBuilder<NoteBloc, NoteState>(
-      builder: (context, state) {
-        if (state.status == NoteStatus.loading) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
-        }
-        if (state.status == NoteStatus.error) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
-                SizedBox(height: 12.h),
-                Text(
-                  AppLocalizations.of(context)!.somethingWentWrong,
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 15.sp),
+    return ValueListenableBuilder<String>(
+      valueListenable: _searchNotifier,
+      builder: (context, searchQuery, _) {
+        return BlocBuilder<NoteBloc, NoteState>(
+          buildWhen: (prev, next) =>
+              prev.status != next.status || prev.notes != next.notes,
+          builder: (context, state) {
+            if (state.status == NoteStatus.loading) {
+              return const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary));
+            }
+            if (state.status == NoteStatus.error) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 48.r, color: AppColors.error),
+                    SizedBox(height: 12.h),
+                    Text(
+                      AppLocalizations.of(context)!.somethingWentWrong,
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 15.sp),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        }
-        if (state.status == NoteStatus.loaded) {
-          final notes = _searchQuery.isEmpty
-              ? state.notes
-              : state.notes
-                  .where((n) => n.content
-                      .toLowerCase()
-                      .contains(_searchQuery.toLowerCase()))
-                  .toList();
-          if (notes.isEmpty) {
-            final isSearching = _searchQuery.isNotEmpty;
-            final l10n = AppLocalizations.of(context)!;
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isSearching ? Icons.search_off : Icons.mic_none,
-                    size: 72.r,
-                    color: AppColors.disabled,
+              );
+            }
+            if (state.status == NoteStatus.loaded) {
+              final notes = searchQuery.isEmpty
+                  ? state.notes
+                  : state.notes
+                      .where((n) => n.content
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
+                      .toList();
+              if (notes.isEmpty) {
+                final isSearching = searchQuery.isNotEmpty;
+                final l10n = AppLocalizations.of(context)!;
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isSearching ? Icons.search_off : Icons.mic_none,
+                        size: 72.r,
+                        color: AppColors.disabled,
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        isSearching ? l10n.noNotesFound : l10n.noNotesYet,
+                        style: TextStyle(color: AppColors.disabled, fontSize: 15.sp),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    isSearching ? l10n.noNotesFound : l10n.noNotesYet,
-                    style: TextStyle(color: AppColors.disabled, fontSize: 15.sp),
-                  ),
-                ],
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 100.h),
-            itemCount: notes.length,
-            itemBuilder: (ctx, i) {
-              final note = notes[i];
-              return Dismissible(
-                key: ValueKey(note.id),
-                direction: DismissDirection.endToStart,
-                background: Container(
-                  margin: EdgeInsets.only(bottom: 12.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.error,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  alignment: Alignment.centerRight,
-                  padding: EdgeInsets.only(right: 20.w),
-                  child: Icon(Icons.delete_outline, color: AppColors.white, size: 26.r),
-                ),
-                onDismissed: (_) {
-                  context.read<NoteBloc>().add(
-                        DeleteNote(note.id,
-                            categoryId:
-                                context.read<NoteBloc>().state.selectedCategoryId),
+                );
+              }
+              return ListView.builder(
+                padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 100.h),
+                itemCount: notes.length,
+                itemBuilder: (ctx, i) {
+                  final note = notes[i];
+                  return Dismissible(
+                    key: ValueKey(note.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      margin: EdgeInsets.only(bottom: 12.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20.w),
+                      child: Icon(Icons.delete_outline, color: AppColors.white, size: 26.r),
+                    ),
+                    onDismissed: (_) {
+                      context.read<NoteBloc>().add(
+                            DeleteNote(note.id,
+                                categoryId:
+                                    context.read<NoteBloc>().state.selectedCategoryId),
+                          );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.noteDeleted),
+                          backgroundColor: Colors.green,
+                        ),
                       );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context)!.noteDeleted),
-                      backgroundColor: Colors.green,
+                    },
+                    child: GestureDetector(
+                      onTap: () => context.push('/note/${note.id}', extra: note),
+                      child: _NoteCard(note: note),
                     ),
                   );
                 },
-                child: GestureDetector(
-                  onTap: () =>
-                      context.push('/note/${note.id}', extra: note),
-                  child: _NoteCard(note: note),
-                ),
               );
-            },
-          );
-        }
-        return const SizedBox.shrink();
+            }
+            return const SizedBox.shrink();
+          },
+        );
       },
     );
   }
@@ -1247,7 +1264,6 @@ class _WaveformWidgetState extends State<_WaveformWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final _random = Random();
-  List<double> _bars = List.filled(28, 0.1);
 
   @override
   void initState() {
@@ -1255,13 +1271,7 @@ class _WaveformWidgetState extends State<_WaveformWidget>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 180),
-    )..addListener(() {
-        if (widget.isAnimating && mounted) {
-          setState(() {
-            _bars = List.generate(28, (_) => 0.1 + _random.nextDouble() * 0.9);
-          });
-        }
-      });
+    );
     if (widget.isAnimating) _controller.repeat();
   }
 
@@ -1272,7 +1282,7 @@ class _WaveformWidgetState extends State<_WaveformWidget>
       _controller.repeat();
     } else if (!widget.isAnimating && oldWidget.isAnimating) {
       _controller.stop();
-      setState(() => _bars = List.filled(28, 0.1));
+      _controller.reset();
     }
   }
 
@@ -1284,23 +1294,71 @@ class _WaveformWidgetState extends State<_WaveformWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 72.h,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _bars
-            .map((h) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 4.w,
-                  height: (8 + h * 60).h,
-                  margin: EdgeInsets.symmetric(horizontal: 2.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.3 + h * 0.7),
-                    borderRadius: BorderRadius.circular(3.r),
-                  ),
-                ))
-            .toList(),
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final bars = widget.isAnimating
+            ? List.generate(28, (_) => 0.1 + _random.nextDouble() * 0.9)
+            : List.filled(28, 0.1);
+        return SizedBox(
+          height: 72.h,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _WaveformPainter(
+              bars: bars,
+              barWidth: 4.w,
+              spacing: 4.w,
+              color: AppColors.primary,
+              minBarHeight: 8.h,
+              maxExtraHeight: 60.h,
+              borderRadius: 3.r,
+            ),
+          ),
+        );
+      },
     );
   }
+}
+
+class _WaveformPainter extends CustomPainter {
+  final List<double> bars;
+  final double barWidth;
+  final double spacing;
+  final Color color;
+  final double minBarHeight;
+  final double maxExtraHeight;
+  final double borderRadius;
+
+  _WaveformPainter({
+    required this.bars,
+    required this.barWidth,
+    required this.spacing,
+    required this.color,
+    required this.minBarHeight,
+    required this.maxExtraHeight,
+    required this.borderRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final totalWidth = bars.length * (barWidth + spacing) - spacing;
+    double x = (size.width - totalWidth) / 2;
+    for (final h in bars) {
+      final barHeight = minBarHeight + h * maxExtraHeight;
+      final paint = Paint()
+        ..color = color.withValues(alpha: 0.3 + h * 0.7)
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(x, (size.height - barHeight) / 2, barWidth, barHeight),
+          Radius.circular(borderRadius),
+        ),
+        paint,
+      );
+      x += barWidth + spacing;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_WaveformPainter oldDelegate) => true;
 }

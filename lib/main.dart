@@ -34,13 +34,16 @@ Future<void> main() async {
     firebaseFailed = true;
   }
 
-  await initializeDateFormatting('tr');
-  await initializeDateFormatting('en');
-  await setupDependencies();
+  await Future.wait([
+    initializeDateFormatting('tr'),
+    initializeDateFormatting('en'),
+    setupDependencies(),
+  ]);
 
   final prefs = await SharedPreferences.getInstance();
   final savedLanguage = prefs.getString('language') ?? 'en';
   getIt<SpeechService>().setLocale(savedLanguage);
+  unawaited(getIt<SpeechService>().initialize());
 
   final router = AppRouter.create(
     authBloc: getIt<AuthBloc>(),
