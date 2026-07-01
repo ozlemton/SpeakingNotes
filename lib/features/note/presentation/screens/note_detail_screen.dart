@@ -225,7 +225,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         child: _isEditing
                             ? Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFEEEEFD),
+                                  color: AppColors.primaryLight,
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(

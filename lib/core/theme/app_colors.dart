@@ -14,4 +14,5 @@ abstract final class AppColors {
   static const divider = Color(0xFFEEEEEE);
   static const disabled = Color(0xFFE0E0E0);
   static const shadow = Color(0xFF000000);
+  static const splashBackground = Color(0xFFD8DAFC);
 }
