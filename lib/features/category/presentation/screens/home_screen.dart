@@ -290,6 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SnackBar(
               content: Text(AppLocalizations.of(context)!.categoryDeleted),
               backgroundColor: Colors.green,
+              duration: const Duration(milliseconds: 1500),
             ),
           );
         }
@@ -423,6 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SnackBar(
                     content: Text(l10n.categoryUpdated),
                     backgroundColor: Colors.green,
+                    duration: const Duration(milliseconds: 1500),
                   ),
                 );
               }
@@ -544,6 +546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SnackBar(
                           content: Text(AppLocalizations.of(context)!.noteDeleted),
                           backgroundColor: Colors.green,
+                          duration: const Duration(milliseconds: 1500),
                         ),
                       );
                     },
@@ -1053,6 +1056,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         messenger.showSnackBar(SnackBar(
           content: Text(l10n.noteSaved),
           backgroundColor: Colors.green,
+          duration: const Duration(milliseconds: 1500),
         ));
       } else {
         Navigator.pop(context);

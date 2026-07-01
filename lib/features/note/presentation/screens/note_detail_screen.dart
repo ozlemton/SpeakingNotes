@@ -96,6 +96,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(AppLocalizations.of(context)!.noteUpdated),
       backgroundColor: Colors.green,
+      duration: const Duration(milliseconds: 1500),
     ));
   }
 

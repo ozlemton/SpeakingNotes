@@ -283,6 +283,7 @@ class _RecordingBottomSheetState extends State<_RecordingBottomSheet> {
         messenger.showSnackBar(SnackBar(
           content: Text(l10n.noteSaved),
           backgroundColor: Colors.green,
+          duration: const Duration(milliseconds: 1500),
         ));
       } else {
         Navigator.pop(context);
