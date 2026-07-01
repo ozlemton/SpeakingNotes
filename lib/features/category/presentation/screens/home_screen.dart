@@ -486,7 +486,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             }
-            if (state.status == NoteStatus.loaded) {
+            if (state.status == NoteStatus.loaded ||
+                state.status == NoteStatus.success) {
               final notes = searchQuery.isEmpty
                   ? state.notes
                   : state.notes

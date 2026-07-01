@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' hide Category;
 import '../../features/category/data/repositories/firebase_category_repository.dart';
 import '../../features/category/data/repositories/local_category_repository.dart';
@@ -62,9 +64,9 @@ class RepositoryNoteService implements NoteRepository {
   @override
   Future<void> createNote(Note note) async {
     await _local.createNote(note);
-    await _firebase.createNote(note).catchError((e) {
+    unawaited(_firebase.createNote(note).catchError((e) {
       if (kDebugMode) debugPrint('Firebase createNote failed (saved locally): $e');
-    });
+    }));
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/models/note.dart';
 
-enum NoteStatus { initial, loading, loaded, error }
+enum NoteStatus { initial, loading, loaded, success, error }
 
 @immutable
 class NoteState {

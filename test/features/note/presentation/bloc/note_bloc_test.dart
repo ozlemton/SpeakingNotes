@@ -88,7 +88,7 @@ void main() {
 
   group('CreateNote', () {
     blocTest<NoteBloc, NoteState>(
-      'emits [loading] then leaves notes unchanged (reloads via separate event)',
+      'emits [loading, success] after local save; list reload triggered separately',
       build: () {
         when(mockCreate(newNote)).thenAnswer((_) async {});
         return buildBloc();
@@ -96,6 +96,7 @@ void main() {
       act: (bloc) => bloc.add(CreateNote(newNote)),
       expect: () => [
         isA<NoteState>().having((s) => s.status, 'status', NoteStatus.loading),
+        isA<NoteState>().having((s) => s.status, 'status', NoteStatus.success),
       ],
       verify: (_) => verify(mockCreate(newNote)).called(1),
     );

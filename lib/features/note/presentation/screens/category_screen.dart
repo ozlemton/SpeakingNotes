@@ -93,7 +93,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
             );
           }
-          if (state.status == NoteStatus.loaded) {
+          if (state.status == NoteStatus.loaded ||
+              state.status == NoteStatus.success) {
             if (state.notes.isEmpty) {
               return Center(
                 child: Column(

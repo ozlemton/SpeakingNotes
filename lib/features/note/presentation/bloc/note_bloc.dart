@@ -66,6 +66,7 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     emit(state.copyWith(status: NoteStatus.loading));
     try {
       await createNote(event.note);
+      emit(state.copyWith(status: NoteStatus.success));
     } catch (e) {
       emit(state.copyWith(status: NoteStatus.error, error: e.toString()));
     }
