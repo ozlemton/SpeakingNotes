@@ -1,7 +1,6 @@
-# 🎙️ SpeakingNotes
+# SpeakingNotes
 
-> **Your voice. Your notes. Automatically.**
-> SpeakingNotes listens to your conversations and transforms them into organized, searchable notes — hands-free.
+> Voice-powered note taking app for iOS and Android
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)
@@ -10,135 +9,144 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🎤 **Voice-to-Text Notes** — Speak naturally and watch your words become notes in real time
-- 📁 **Smart Categories** — Organize notes into categories created entirely by voice
-- 🗂️ **Persistent Storage** — All categories and notes are saved and available anytime
-- ➕ **Add to Existing Categories** — Select a category and keep adding new notes to it
-- 🧠 **Hands-Free Experience** — No typing required at any step
-
----
-
-## 📱 How It Works
-
-```
-1. Open the app
-       ↓
-2. Tap "+ New Category"
-       ↓
-3. Speak the category name → converted to text automatically
-       ↓
-4. Start speaking your note → everything you say is saved as a note
-       ↓
-5. All notes are stored under their category and listed in the app
-```
-
-> Already have a category? Simply select it from the list and start adding new notes to it.
+- **Speech-to-text note taking** — dictate notes in 33 supported languages
+- **Category management** — organise notes into categories, created by voice or text
+- **Local + Firebase cloud sync** — notes are saved to SQLite on-device and synced to Firestore
+- **Multi-language UI** — full Turkish and English localisation with live switching
+- **Note editing** — edit saved notes with a rich text editor
+- **Search** — search across all notes in real time
 
 ---
 
-## 🚀 Getting Started
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | Flutter (Clean Architecture) |
+| State management | BLoC (`flutter_bloc`) |
+| Navigation | `go_router` |
+| Local storage | Drift (SQLite) |
+| Cloud storage | Firebase Firestore |
+| Authentication | Firebase Auth |
+| Responsive design | `flutter_screenutil` |
+| Localisation | Flutter `intl` (TR / EN) |
+| Dependency injection | `get_it` |
+
+---
+
+## Architecture
+
+The project follows Clean Architecture with feature-first folder organisation:
+
+```
+lib/
+├── core/
+│   ├── constants/          # AppAssets
+│   ├── navigation/         # go_router route definitions
+│   ├── services/           # SpeechService, SyncService, RepositoryService
+│   └── theme/              # AppColors, AppTypography, AppSpacing, AppTheme
+├── features/
+│   ├── auth/
+│   │   ├── data/           # FirebaseAuthRepository
+│   │   ├── domain/         # models, repository interface, use cases
+│   │   └── presentation/   # AuthBloc, LoginScreen, SignupScreen, ProfileScreen
+│   ├── category/
+│   │   ├── data/           # FirebaseCategoryRepository, LocalCategoryRepository
+│   │   ├── domain/
+│   │   └── presentation/   # CategoryBloc, HomeScreen
+│   ├── note/
+│   │   ├── data/           # FirebaseNoteRepository, LocalNoteRepository
+│   │   ├── domain/
+│   │   └── presentation/   # NoteBloc, CategoryScreen, NoteDetailScreen
+│   └── splash/
+│       └── presentation/   # SplashScreen
+├── l10n/                   # ARB files + generated localisation classes
+└── main.dart
+```
+
+**Data flow:** UI → BLoC event → Use Case → Repository → local Drift DB (always) + Firebase Firestore (best-effort, fire-and-forget).
+
+---
+
+## Setup
 
 ### Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) `^3.8.1`
-- Dart SDK *(included with Flutter)*
-- Xcode *(for iOS)* or Android Studio *(for Android)*
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) `>=3.8.1`
+- Xcode (iOS) or Android Studio (Android)
+- A Firebase project with Authentication and Firestore enabled
 - A physical device or simulator with microphone access
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
+git clone https://github.com/ozlemton/SpeakingNotes.git
 cd speaking_notes
 
 # 2. Install dependencies
 flutter pub get
 
-# 3. Run the app
+# 3. Add Firebase config files
+#    iOS:     ios/Runner/GoogleService-Info.plist
+#    Android: android/app/google-services.json
+#    Dart:    lib/firebase_options.dart
+#    (generate with: flutterfire configure)
+
+# 4. Run the app
 flutter run
 ```
 
----
+### Build
 
-## 🗂️ Project Structure
+```bash
+# Android release APK
+flutter build apk --release
 
-```
-speaking_notes/
-├── lib/
-│   └── main.dart              # App entry point
-├── test/
-│   └── widget_test.dart       # Widget tests
-├── android/                   # Android configuration
-├── ios/                       # iOS configuration
-├── web/                       # Web configuration
-├── macos/                     # macOS configuration
-├── windows/                   # Windows configuration
-├── linux/                     # Linux configuration
-└── pubspec.yaml               # Dependencies & metadata
+# iOS release (requires Xcode signing configured)
+flutter build ios --release
 ```
 
 ---
 
-## 📦 Dependencies
+## Testing
 
-| Package | Version | Purpose |
-|---|---|---|
-| `flutter` | SDK | UI framework |
-| `cupertino_icons` | ^1.0.8 | iOS-style icons |
-
----
-
-## 🌍 Platform Support
-
-| Platform | Status |
-|----------|--------|
-| 📱 Android | ✅ Supported |
-| 🍎 iOS | ✅ Supported |
-| 🌐 Web | ✅ Supported |
-| 🖥️ macOS | ✅ Supported |
-| 🪟 Windows | ✅ Supported |
-| 🐧 Linux | ✅ Supported |
-
----
-
-## 🧪 Running Tests
+The project has 36 unit and BLoC tests covering use cases and the NoteBloc:
 
 ```bash
 flutter test
 ```
 
----
+CI/CD runs automatically on every push and pull request via GitHub Actions (`.github/workflows/ci.yml`):
 
-## 🔨 Build
-
-```bash
-# Android
-flutter build apk
-
-# iOS
-flutter build ios
-
-# Web
-flutter build web
-```
+- `flutter analyze` — static analysis
+- `flutter test` — full test suite
 
 ---
 
-## 🔒 Permissions
+## Permissions
 
-SpeakingNotes requires the following device permissions:
-
-- 🎙️ **Microphone** — for voice-to-text conversion
+| Permission | Reason |
+|------------|--------|
+| Microphone | Speech-to-text transcription |
+| Internet | Firebase authentication and Firestore sync |
 
 ---
 
-## 📄 License
+## Privacy
+
+See [docs/privacy_policy.md](docs/privacy_policy.md) for the full privacy policy (EN / TR).
+
+---
+
+## Firebase Security
+
+See [docs/firebase_security_rules.md](docs/firebase_security_rules.md) for Firestore security rules — users can only access their own data.
+
+---
+
+## License
 
 This project is licensed under the MIT License.
-
----
-
-*Made with ❤️ using Flutter*
