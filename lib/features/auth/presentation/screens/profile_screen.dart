@@ -17,49 +17,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-class _SpeechLang {
-  final String code;
-  final String nameTr;
-  final String nameEn;
-  const _SpeechLang(this.code, this.nameTr, this.nameEn);
-}
-
-const _kSpeechLanguages = [
-  _SpeechLang('tr-TR', 'Türkçe', 'Turkish'),
-  _SpeechLang('en-US', 'İngilizce (ABD)', 'English (US)'),
-  _SpeechLang('en-GB', 'İngilizce (İngiltere)', 'English (UK)'),
-  _SpeechLang('de-DE', 'Almanca', 'German'),
-  _SpeechLang('fr-FR', 'Fransızca', 'French'),
-  _SpeechLang('it-IT', 'İtalyanca', 'Italian'),
-  _SpeechLang('es-ES', 'İspanyolca', 'Spanish'),
-  _SpeechLang('ja-JP', 'Japonca', 'Japanese'),
-  _SpeechLang('ko-KR', 'Korece', 'Korean'),
-  _SpeechLang('zh-CN', 'Çince', 'Chinese'),
-  _SpeechLang('ru-RU', 'Rusça', 'Russian'),
-  _SpeechLang('ar-SA', 'Arapça', 'Arabic'),
-  _SpeechLang('pt-BR', 'Portekizce (Brezilya)', 'Portuguese (Brazil)'),
-  _SpeechLang('nl-NL', 'Felemenkçe', 'Dutch'),
-  _SpeechLang('pl-PL', 'Lehçe', 'Polish'),
-  _SpeechLang('sv-SE', 'İsveççe', 'Swedish'),
-  _SpeechLang('nb-NO', 'Norveççe', 'Norwegian'),
-  _SpeechLang('da-DK', 'Danca', 'Danish'),
-  _SpeechLang('fi-FI', 'Fince', 'Finnish'),
-  _SpeechLang('el-GR', 'Yunanca', 'Greek'),
-  _SpeechLang('he-IL', 'İbranice', 'Hebrew'),
-  _SpeechLang('hi-IN', 'Hintçe', 'Hindi'),
-  _SpeechLang('id-ID', 'Endonezce', 'Indonesian'),
-  _SpeechLang('ms-MY', 'Malayca', 'Malay'),
-  _SpeechLang('ro-RO', 'Romence', 'Romanian'),
-  _SpeechLang('sk-SK', 'Slovakça', 'Slovak'),
-  _SpeechLang('th-TH', 'Tayca', 'Thai'),
-  _SpeechLang('uk-UA', 'Ukraynaca', 'Ukrainian'),
-  _SpeechLang('vi-VN', 'Vietnamca', 'Vietnamese'),
-  _SpeechLang('ca-ES', 'Katalanca', 'Catalan'),
-  _SpeechLang('hr-HR', 'Hırvatça', 'Croatian'),
-  _SpeechLang('cs-CZ', 'Çekçe', 'Czech'),
-  _SpeechLang('hu-HU', 'Macarca', 'Hungarian'),
-];
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -106,10 +63,6 @@ class ProfileScreen extends StatelessWidget {
                 _SettingsCard(
                   children: [
                     _LanguageSelector(currentLanguage: user.language),
-                    Divider(
-                        height: 1, indent: 20.w, endIndent: 20.w,
-                        color: AppColors.divider),
-                    const _SpeechLanguageSelectorRow(),
                   ],
                 ),
                 SizedBox(height: 24.h),
@@ -212,6 +165,17 @@ class _LanguageSelector extends StatelessWidget {
   }
 }
 
+/// Updates the app's UI language and keeps speech-to-text recognition
+/// locked to the same language, so a note is always transcribed in
+/// whichever language the user is currently speaking/writing in.
+Future<void> _changeLanguage(BuildContext context, String code) async {
+  context.read<AuthBloc>().add(UpdateLanguage(code));
+  final speechLocale = code == 'en' ? 'en-US' : 'tr-TR';
+  getIt<SpeechService>().setLocale(speechLocale);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('speech_language', speechLocale);
+}
+
 class _LanguageToggle extends StatelessWidget {
   final String currentLanguage;
   const _LanguageToggle({required this.currentLanguage});
@@ -229,13 +193,13 @@ class _LanguageToggle extends StatelessWidget {
         children: [
           _LangButton(
             label: l10n.english,
-            code: 'en',
             selected: currentLanguage == 'en',
+            onTap: () => _changeLanguage(context, 'en'),
           ),
           _LangButton(
             label: l10n.turkish,
-            code: 'tr',
             selected: currentLanguage == 'tr',
+            onTap: () => _changeLanguage(context, 'tr'),
           ),
         ],
       ),
@@ -245,23 +209,18 @@ class _LanguageToggle extends StatelessWidget {
 
 class _LangButton extends StatelessWidget {
   final String label;
-  final String code;
   final bool selected;
+  final VoidCallback onTap;
   const _LangButton({
     required this.label,
-    required this.code,
     required this.selected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: selected
-          ? null
-          : () {
-              context.read<AuthBloc>().add(UpdateLanguage(code));
-              getIt<SpeechService>().setLocale(code);
-            },
+      onTap: selected ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
@@ -276,79 +235,6 @@ class _LangButton extends StatelessWidget {
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SpeechLanguageSelectorRow extends StatefulWidget {
-  const _SpeechLanguageSelectorRow();
-
-  @override
-  State<_SpeechLanguageSelectorRow> createState() =>
-      _SpeechLanguageSelectorRowState();
-}
-
-class _SpeechLanguageSelectorRowState
-    extends State<_SpeechLanguageSelectorRow> {
-  String _selectedCode = 'tr-TR';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSaved();
-  }
-
-  Future<void> _loadSaved() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString('speech_language');
-    if (saved != null && mounted) {
-      setState(() => _selectedCode = saved);
-    }
-  }
-
-  Future<void> _onChanged(String? code) async {
-    if (code == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('speech_language', code);
-    getIt<SpeechService>().setLocale(code);
-    if (mounted) setState(() => _selectedCode = code);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final isEn = Localizations.localeOf(context).languageCode == 'en';
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Row(
-        children: [
-          Icon(Icons.mic_none, color: AppColors.primary, size: 22.r),
-          SizedBox(width: 14.w),
-          Expanded(
-            child: Text(l10n.speechLanguage, style: AppTypography.body1),
-          ),
-          DropdownButton<String>(
-            value: _selectedCode,
-            underline: const SizedBox.shrink(),
-            icon: Icon(Icons.keyboard_arrow_down,
-                color: AppColors.primary, size: 20.r),
-            style: AppTypography.body2.copyWith(color: AppColors.textPrimary),
-            dropdownColor: AppColors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            items: _kSpeechLanguages
-                .map((lang) => DropdownMenuItem(
-                      value: lang.code,
-                      child: Text(
-                        isEn ? lang.nameEn : lang.nameTr,
-                        style: AppTypography.body2
-                            .copyWith(color: AppColors.textPrimary),
-                      ),
-                    ))
-                .toList(),
-            onChanged: _onChanged,
-          ),
-        ],
       ),
     );
   }
